@@ -4,6 +4,7 @@ dotenv.config()
 const { connectDB } = require("./config/db")
 const app = express()
 const PORT = process.env.PORT
+const { catchErrors } = require("./middleware/error")
 connectDB().catch((err)=>console.error(err))
 
 const authRoutes = require("./routes/auth")
@@ -20,7 +21,7 @@ app.use("/api/v1/auth", authRoutes)
 
 
 
-
+app.use(catchErrors)
 
 app.listen(PORT, ()=>{
     console.log(`server started on port ${PORT}`)

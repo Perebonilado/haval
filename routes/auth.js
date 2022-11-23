@@ -1,10 +1,11 @@
 const express = require("express")
 const router = express.Router()
+const { login, signUp } = require("../controllers/auth")
 
 
-router.get("/login", (req, res)=>{
-    res.status(200).json({message: "you are logged in"})
-})
+router.post("/login", login)
+
+router.post("/signup", signUp)
 
 
 module.exports = router

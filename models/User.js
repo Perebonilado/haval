@@ -14,6 +14,8 @@ const UserSchema = new Schema({
     required: [true, "email is a required field"],
     unique: true,
     dropDups: true,
+    lowercase: true,
+    trim: true
   },
   username: {
     type: String,
@@ -27,13 +29,14 @@ const UserSchema = new Schema({
   },
   profilePictureURL: {
     type: String,
-    required: true,
   },
   books: {
     type: [{ type: Schema.Types.ObjectId, ref: "Books" }],
   },
   wallet: {
-    type: { type: Schema.Types.ObjectId, ref: "Wallet" },
+    type: Schema.Types.ObjectId, 
+    ref: "Wallet",
+    default: null
   },
   updated_at: { type: Date, default: Date.now() },
   created_at: { type: Date, default: Date.now(), immutable: true },

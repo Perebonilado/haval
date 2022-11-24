@@ -21,6 +21,10 @@ const UserSchema = new Schema({
     unique: true,
     dropDups: true,
   },
+  password: {
+    type: String,
+    required: [true, "password is a required field"],
+  },
   profilePictureURL: {
     type: String,
     required: true,

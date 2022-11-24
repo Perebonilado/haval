@@ -1,11 +1,26 @@
-const ash = require('express-async-handler')
+const ash = require("express-async-handler");
+const cloudinary = require("../config/cloudinary");
+const { UserModel } = require("../models/User");
 
-const signUp = ash(async (req, res)=>{
-    res.status(200).json({message: "you have signed up"})
-})
+const signUp = ash(async (req, res) => {
+  try {
+    const imageResult = await cloudinary.uploader.upload(req.file.path, {
+      resource_type: "image",
+    });
+    const user = new UserModel({
+      firstName: req.body.firstName,
+      profilePictureURL: imageResult.secure_url,
+    });
 
-const login = ash(async(req, res)=>{
-    res.status(200).json({message: "you are logged in"})
-})
+    await user.save();
+    res.status(200).json({ message: user });
+  } catch (error) {
+    res.send(error.message);
+  }
+});
 
-module.exports = { signUp, login }
+const login = ash(async (req, res) => {
+  res.status(200).json({ message: "you are logged in" });
+});
+
+module.exports = { signUp, login };

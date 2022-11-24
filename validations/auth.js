@@ -12,7 +12,7 @@ const signUpValidations = [
     .withMessage({ message: "Must be a minimum of 5 characters" })
     .not()
     .isEmpty()
-    .withMessage({ message: "email is a required field" }),
+    .withMessage({ message: "password is a required field" }),
   check("username")
     .not()
     .isEmpty()
@@ -27,4 +27,17 @@ const signUpValidations = [
     .withMessage({ message: "lastName is a required field" }),
 ];
 
-module.exports = { signUpValidations };
+const loginValidations = [
+  check("email")
+    .isEmail()
+    .withMessage({ message: "please provide a valide email address" })
+    .not()
+    .isEmpty()
+    .withMessage({ message: "email is a required field" }),
+  check("password")
+    .not()
+    .isEmpty()
+    .withMessage({ message: "password is a required field" }),
+];
+
+module.exports = { signUpValidations, loginValidations };

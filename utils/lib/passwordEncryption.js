@@ -9,4 +9,12 @@ const encryptPassword = async (password) => {
     }
 }
 
-module.exports = { encryptPassword }
+const comparePassword = async ({plainPassword, hashedPassword}) => {
+    if(!plainPassword) return false
+    else {
+        const result = await bcrypt.compare(plainPassword, hashedPassword)
+        if(result) return result
+    }
+}
+
+module.exports = { encryptPassword, comparePassword }

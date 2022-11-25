@@ -67,15 +67,19 @@ const signUp = ash(async (req, res) => {
 
 const login = ash(async (req, res) => {
   try {
-    // validate request
+    // validate request body contains correct data format
     const errors = validationResult(req.body)
     if(errors.isEmpty()){
       const { email, password } = req.body
       try {
+        // find the user using email
         const user = await UserModel.findOne({email: email})
         if(user){
-          const result = await comparePassword({plainPassword: password, hashedPassword: user.password})
-          if(result){
+          // compare password passed to hashed password
+          const passwordMatch = await comparePassword({plainPassword: password, hashedPassword: user.password})
+          if(passwordMatch){
+            /* if theres a match, generate a token using the users id and send it
+             in the response */
             const token = generateToken(user._id)
             res.status(200).json({message: "login successful", token: token})
           }

@@ -3,7 +3,8 @@ const { decodeJwtToken } = require("../utils/lib/generateJwtToken")
 
 const authGuard = ash(async (req, res, next) => {
     try {
-        if(req.headers && req.headers.authorization.startsWith("Bearer")){
+        if(!req.headers.authorization) res.status(400).json({message: "No bearer token passed in header"})
+        else if(req.headers.authorization.startsWith("Bearer")){
             const token = req.headers.authorization.split(" ")[1]
             if(token){
                 const userId = decodeJwtToken(token)

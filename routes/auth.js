@@ -8,8 +8,8 @@ router.post("/login", ...loginValidations, login);
 
 router.post(
   "/signup",
-  uploadImage.single("image"),
   ...signUpValidations,
+  uploadImage.single("image"),
   signUp
 );
 

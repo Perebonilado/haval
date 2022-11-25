@@ -13,4 +13,16 @@ const uploadImage = multer({
   },
 });
 
-module.exports = { uploadImage }
+const uploadBook = multer({
+  storage: multer.diskStorage({}),
+  fileFilter: (req, file, cb) => {
+    let ext = path.extname(file.originalname);
+    if (ext !== ".pdf") {
+      cb(new Error("Unsupported file type!"), false);
+      return;
+    }
+    cb(null, true);
+  },
+});
+
+module.exports = { uploadImage, uploadBook }

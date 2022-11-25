@@ -9,6 +9,10 @@ const BookSchema = new Schema({
     type: String,
     required: [true, "please provide author name"],
   },
+  bookUrl: {
+    type: String,
+    required: [true, "please provide book url"],
+  },
   coverImageUrl: {
     type: String,
     required: [true, "please provide cover image"],
@@ -67,7 +71,8 @@ const BookSchema = new Schema({
         created_at: { type: Date, default: Date.now(), required: true },
       },
     ],
-    validate: [arrayLimit, "Maximum number of tokens generated"]
+    validate: [arrayLimit, "Maximum number of tokens generated"],
+    default: null
   },
   
 });
@@ -77,3 +82,5 @@ function arrayLimit(val) {
   }
 
 const BookModel = model(BookSchema, "Book");
+
+module.exports = { BookModel }

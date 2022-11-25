@@ -60,6 +60,9 @@ const signUp = ash(async (req, res) => {
         }
       }
     }
+    else {
+      res.status(400).json(errors.array()[0].msg)
+    }
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -68,7 +71,7 @@ const signUp = ash(async (req, res) => {
 const login = ash(async (req, res) => {
   try {
     // validate request body contains correct data format
-    const errors = validationResult(req.body)
+    const errors = validationResult(req)
     if(errors.isEmpty()){
       const { email, password } = req.body
       try {
@@ -91,6 +94,9 @@ const login = ash(async (req, res) => {
       } catch (error) {
         res.status(400).json({message: error.message})
       }
+    }
+    else {
+      res.status(400).json(errors.array()[0].msg)
     }
   } catch (error) {
     res.status(400).json({message: error.message})

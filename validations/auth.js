@@ -1,15 +1,15 @@
-const { check } = require("express-validator");
+const { body, check } = require("express-validator");
 
 const signUpValidations = [
   check("email")
     .isEmail()
-    .withMessage({ message: "please provide a valide email address" })
+    .withMessage({ message: "please provide a valid email address" })
     .not()
     .isEmpty()
     .withMessage({ message: "email is a required field" }),
   check("password")
     .isLength({ min: 5 })
-    .withMessage({ message: "Must be a minimum of 5 characters" })
+    .withMessage({ message: "Password must be a minimum of 5 characters" })
     .not()
     .isEmpty()
     .withMessage({ message: "password is a required field" }),
@@ -28,13 +28,13 @@ const signUpValidations = [
 ];
 
 const loginValidations = [
-  check("email")
+  body("email")
     .isEmail()
-    .withMessage({ message: "please provide a valide email address" })
+    .withMessage({ message: "please provide a valid email address" })
     .not()
     .isEmpty()
     .withMessage({ message: "email is a required field" }),
-  check("password")
+  body("password")
     .not()
     .isEmpty()
     .withMessage({ message: "password is a required field" }),

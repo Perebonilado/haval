@@ -4,7 +4,7 @@ const { UserModel } = require("../models/User");
 const { WalletModel } = require("../models/Wallet");
 const { validationResult } = require("express-validator");
 const { encryptPassword, comparePassword } = require("../utils/lib/passwordEncryption")
-const { generateToken } = require("../utils/lib/generateToken")
+const { generateJwtToken } = require("../utils/lib/generateJwtToken")
 
 const signUp = ash(async (req, res) => {
   try {
@@ -52,7 +52,7 @@ const signUp = ash(async (req, res) => {
               }
             );
             // generate jwt using users Id, send response
-            const token = generateToken(savedUser._id)
+            const token = generateJwtToken(savedUser._id)
             res.status(200).json({ message: "Account Creation Successful", token: token });
           }
         } catch (error) {
@@ -80,7 +80,7 @@ const login = ash(async (req, res) => {
           if(passwordMatch){
             /* if theres a match, generate a token using the users id and send it
              in the response */
-            const token = generateToken(user._id)
+            const token = generateJwtToken(user._id)
             res.status(200).json({message: "login successful", token: token})
           }
           else res.status(400).json({message: "Invalid password"})

@@ -1,12 +1,12 @@
 const ash = require("express-async-handler")
-const { decodeToken } = require("../utils/lib/generateToken")
+const { decodeJwtToken } = require("../utils/lib/generateJwtToken")
 
 const authGuard = ash(async (req, res, next) => {
     try {
         if(req.headers && req.headers.authorization.startsWith("Bearer")){
             const token = req.headers.authorization.split(" ")[1]
             if(token){
-                const userId = decodeToken(token)
+                const userId = decodeJwtToken(token)
                 if(userId) {
                     req.user = userId
                     next()

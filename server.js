@@ -24,8 +24,6 @@ app.use("/api/v1/books", bookRoutes)
 
 
 
-
-
 app.use(catchErrors)
 
 app.listen(PORT, ()=>{

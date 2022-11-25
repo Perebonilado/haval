@@ -13,16 +13,33 @@ const uploadImage = multer({
   },
 });
 
-const uploadBook = multer({
+const uploadBookDetails = multer({
   storage: multer.diskStorage({}),
   fileFilter: (req, file, cb) => {
-    let ext = path.extname(file.originalname);
-    if (ext !== ".pdf") {
+  
+    if (file.fieldname === "book") {
+      if (file.mimetype === "application/pdf") {
+        cb(null, true);
+      } else {
+        cb(new Error("Unsupported file type!"), false);
+        return;
+      }
+    } else if (file.fieldname == "book_cover") {
+      if (
+        file.mimetype === "image/png" ||
+        file.mimetype === "image/jpg" ||
+        file.mimetype === "image/jpeg"
+      ) {
+        cb(null, true);
+      } else {
+        cb(new Error("Unsupported file type!"), false);
+        return;
+      }
+    } else {
       cb(new Error("Unsupported file type!"), false);
       return;
     }
-    cb(null, true);
   },
 });
 
-module.exports = { uploadImage, uploadBook }
+module.exports = { uploadImage, uploadBookDetails };

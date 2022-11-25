@@ -25,9 +25,9 @@ const BookSchema = new Schema({
   releaseDate: {
     type: Date,
     required: [true, "please provide valid release date"],
-    validate: function (input) {
-      return typeof new Date(input) === "date" && new Date(input) >= new Date();
-    },
+    // validate: function (input) {
+    //   return new Date(input).getTime() <= new Date().getTime();
+    // },
     message: (input) =>
       `${input} must be greater than or equal to the current date!`,
   },
@@ -64,7 +64,7 @@ const BookSchema = new Schema({
     type: String,
     required: true,
   },
-  token: {
+  tokens: {
     type: [
       {
         token: { type: String, required: true },
@@ -81,6 +81,6 @@ function arrayLimit(val) {
     return val.length <= 10;
   }
 
-const BookModel = model(BookSchema, "Book");
+const BookModel = model("Book", BookSchema);
 
 module.exports = { BookModel }

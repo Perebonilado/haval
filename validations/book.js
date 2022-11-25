@@ -1,39 +1,35 @@
-const { body } = require("express-validator");
+const { check } = require("express-validator");
 
 const addBookValidations = [
-  body("title")
+  check("title")
     .not()
     .isEmpty()
     .withMessage({ message: "book title is a required field" }),
-  body("author")
+  check("author")
     .not()
     .isEmpty()
     .withMessage({ message: "book author is a required field" }),
-  body("bookUrl")
+  check("bookUrl")
     .not()
     .isEmpty()
     .withMessage({ message: "book url is a required field" }),
-  body("coverImageUrl")
+  check("coverImageUrl")
     .not()
     .isEmpty()
     .withMessage({ message: "cover image url is a required field" }),
-  body("user")
-    .not()
-    .isEmpty()
-    .withMessage({ message: "user is a required field" }),
-  body("releaseDate")
+  check("releaseDate")
     .not()
     .isEmpty()
     .withMessage({ message: "release date is a required field" }),
-  body("amount")
+  check("amount")
     .not()
     .isEmpty()
     .withMessage({ message: "amount is a required field" }),
-  body("genre")
+  check("genre")
     .not()
     .isEmpty()
     .withMessage({ message: "genre is a required field" }),
-  body("description")
+  check("description")
     .not()
     .isEmpty()
     .withMessage({ message: "description is a required field" }),

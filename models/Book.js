@@ -25,9 +25,6 @@ const BookSchema = new Schema({
   releaseDate: {
     type: Date,
     required: [true, "please provide valid release date"],
-    // validate: function (input) {
-    //   return new Date(input).getTime() <= new Date().getTime();
-    // },
     message: (input) =>
       `${input} must be greater than or equal to the current date!`,
   },

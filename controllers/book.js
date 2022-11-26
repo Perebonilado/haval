@@ -25,9 +25,7 @@ const addBook = ash(async (req, res) => {
             resource_type: "image",
           });
 
-          const bookUrl = await cloudinary.uploader.upload(book, {
-            resource_type: "raw",
-          });
+          const bookUrl = await cloudinary.uploader.upload(book);
 
           if (bookUrl && coverImageUrl) {
             if (new Date().getTime() < new Date(releaseDate).getTime()) {
@@ -73,4 +71,63 @@ const addBook = ash(async (req, res) => {
   }
 });
 
-module.exports = { addBook };
+const getAllUserBooks = ash(async (req, res) => {
+  try {
+    const userId = req.user;
+    const mongooseUserId = mongoose.Types.ObjectId(userId);
+    const userBooks = await BookModel.find()
+      .where("user")
+      .equals(mongooseUserId);
+
+    if (userBooks)
+      res.status(200).json({ message: "Success", data: userBooks });
+    else res.status(400).json({ message: "error getting books" });
+  } catch (error) {
+    res.status(400).json({ message: "error getting books" });
+  }
+});
+
+const getUserBookById = ash(async (req, res) => {
+  try {
+    const userId = req.user;
+    const { bookId } = req.params;
+    const mongooseUserId = mongoose.Types.ObjectId(userId);
+    const mongooseBookId = mongoose.Types.ObjectId(bookId);
+    const userBook = await BookModel.find({
+      user: mongooseUserId,
+      _id: mongooseBookId,
+    }).populate("user");
+
+    if (userBook) res.status(200).json({ message: "Success", data: userBook });
+    else res.status(400).json({ message: "book does not exist" });
+  } catch (error) {
+    res.status(400).json({ message: "error getting book" });
+  }
+});
+
+const deleteUserBook = ash(async (req, res) => {
+  try {
+    const userId = req.user;
+    const { bookId } = req.params;
+    const mongooseUserId = mongoose.Types.ObjectId(userId);
+    const mongooseBookId = mongoose.Types.ObjectId(bookId);
+
+    const deletedBook = await BookModel.findOneAndDelete({
+      user: userId,
+      _id: bookId,
+    });
+    if (deletedBook) {
+      const removedBookFromUserArray = await UserModel.findOneAndUpdate(
+        { _id: mongooseUserId },
+        { $pull: { books: mongooseBookId } }
+      );
+      if (removedBookFromUserArray)
+        res.status(200).json({ message: "book deleted successfully" });
+    } else
+      res.status(400).json({ message: "cannot delete another user's book" });
+  } catch (error) {
+    res.status(400).json({ message: "error deleting book" });
+  }
+});
+
+module.exports = { addBook, getAllUserBooks, getUserBookById, deleteUserBook };

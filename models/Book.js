@@ -60,23 +60,8 @@ const BookSchema = new Schema({
   description: {
     type: String,
     required: true,
-  },
-  tokens: {
-    type: [
-      {
-        token: { type: String, required: true },
-        created_at: { type: Date, default: Date.now(), required: true },
-      },
-    ],
-    validate: [arrayLimit, "Maximum number of tokens generated"],
-    default: null
-  },
-  
+  }, 
 });
-
-function arrayLimit(val) {
-    return val.length <= 10;
-  }
 
 const BookModel = model("Book", BookSchema);
 

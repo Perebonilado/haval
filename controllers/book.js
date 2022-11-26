@@ -124,10 +124,17 @@ const deleteUserBook = ash(async (req, res) => {
       if (removedBookFromUserArray)
         res.status(200).json({ message: "book deleted successfully" });
     } else
-      res.status(400).json({ message: "cannot delete another user's book" });
+      res.status(400).json({ message: "error deleting book" });
   } catch (error) {
     res.status(400).json({ message: "error deleting book" });
   }
 });
+
+const generateBookSalesToken = ash(async(req, res)=>{
+  /* 
+  1. check if user has enough money in wallet to generate token
+  2. if yes, 
+  */
+})
 
 module.exports = { addBook, getAllUserBooks, getUserBookById, deleteUserBook };

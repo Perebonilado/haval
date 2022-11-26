@@ -11,9 +11,14 @@ const TransactionSchema = new Schema({
     ref: "Wallet",
     required: [true, "Please, provide wallet Id"]
   },
+  description: {
+    type: String,
+    required: [true, "please provide description"]
+  },
   initiation_date: {
     type: Date,
     default: Date.now(),
+    immutable: true
   },
 });
 

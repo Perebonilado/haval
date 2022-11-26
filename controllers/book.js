@@ -130,11 +130,6 @@ const deleteUserBook = ash(async (req, res) => {
   }
 });
 
-const generateBookSalesToken = ash(async(req, res)=>{
-  /* 
-  1. check if user has enough money in wallet to generate token
-  2. if yes, 
-  */
-})
+
 
 module.exports = { addBook, getAllUserBooks, getUserBookById, deleteUserBook };

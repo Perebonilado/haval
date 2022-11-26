@@ -10,12 +10,14 @@ connectDB().catch((err)=>console.error(err))
 
 const authRoutes = require("./routes/auth")
 const bookRoutes = require("./routes/book")
+const salesTokenRoutes = require("./routes/salesToken")
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
 app.use("/api/v1/auth", authRoutes)
 app.use("/api/v1/books", bookRoutes)
+app.use("/api/v1/sales-token", salesTokenRoutes)
 
 
 

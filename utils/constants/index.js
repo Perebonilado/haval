@@ -4,3 +4,4 @@ exports.transactionTypes = {
     inflow: "inflow",
     outflow: "outflow"
 }
+exports.PAYSTACK_SECRET = process.env.PAYSTACK_SECRET

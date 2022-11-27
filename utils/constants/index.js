@@ -5,3 +5,4 @@ exports.transactionTypes = {
     outflow: "outflow"
 }
 exports.PAYSTACK_SECRET = process.env.PAYSTACK_SECRET
+exports.havalChargeInNaira=150

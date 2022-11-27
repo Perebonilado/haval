@@ -5,6 +5,8 @@ const { UserModel } = require("../models/User");
 const { WalletModel } = require("../models/Wallet");
 const { transactionTypes } = require("../utils/constants");
 const { TransactionModel } = require("../models/Transaction");
+const { havalChargeInNaira } = require("../utils/constants")
+const { convertKoboToNaira } = require("../utils/lib/currencyConversion")
 
 const confirmPaymentWebHook = ash(async (req, res) => {
   //validate event
@@ -24,32 +26,37 @@ const confirmPaymentWebHook = ash(async (req, res) => {
         4. record transaction as inflow
         */
       res.status(200);
-      const user = await UserModel.findOne({
-        email: event.data.customer.email,
-      });
-      if (user) {
-        const wallet = WalletModel.findById(user.wallet);
-        if (wallet) {
-          const koboToNaira = 100;
-          const amountInKobo = event.data.amount;
-          const amountInNaira = amountInKobo / koboToNaira;
+      try {
+        const user = await UserModel.findOne({
+          email: event.data.customer.email,
+        });
+        if (user) {
+          const wallet = WalletModel.findById(user.wallet);
+          if (wallet) {
+            const amountInKobo = event.data.amount;
+            const amountInNaira = convertKoboToNaira(amountInKobo)
+            const walletCreditAmount = amountInNaira - havalChargeInNaira
 
-          const updatedWallet = await wallet.updateOne({
-            $inc: { amount: amountInNaira },
-          });
-          if (updatedWallet) {
-            const transaction = new TransactionModel({
-              wallet_id: userWallet._id,
-              type: transactionTypes.outflow,
-              description: `${transactionTypes.outflow} for generating token worth ${savedToken.amount} for ${book.title}`,
+            const updatedWallet = await wallet.updateOne({
+              $inc: { amount: walletCreditAmount },
             });
-            await transaction.save();
+            const transaction = new TransactionModel({
+              wallet_id: user.wallet,
+              type: transactionTypes.inflow,
+              description: `NGN${walletCreditAmount} for wallet funding`,
+            });
+            const savedTransaction = await transaction.save();
+            if (updatedWallet && savedTransaction) {
+              // send email
+              res.end();
+            }
           }
         }
+      } catch (error) {
+        res.status(200);
       }
     }
-  }
-  else res.send(200);
+  } else res.send(200);
 });
 
 module.exports = { confirmPaymentWebHook };

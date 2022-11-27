@@ -89,7 +89,7 @@ const createCustomer = ash(async (reqObj, resObj) => {
           });
         })
         .on("error", (error) => {
-          resObj.status(400).json({ message: "Error adding customer" });
+          resObj.status(400).json({ message: error.message });
         });
 
       req.write(params);
@@ -123,10 +123,108 @@ const fetchCustomer = ash(async (req, res) => {
           .json({ message: "success", data: customerDetails.data.data });
       } else
         res.status(400).json({ message: "error fetching customer details" });
-    }
-    else res.status(400).json({ message: "Error fetching user" });
+    } else res.status(400).json({ message: "Error fetching user" });
   } catch (error) {
     res.status(400).json({ message: error.message });
+  }
+});
+
+const createDedicatedVirtualAccount = ash(async (reqObj, resObj) => {
+  try {
+    const errors = validationResult(reqObj);
+    if (!errors.isEmpty()) resObj.status(400).json(errors.array()[0].msg);
+    else {
+      const { customerId } = reqObj.body;
+      const params = JSON.stringify({
+        customer: Number(customerId),
+        preferred_bank: "test-bank",
+      });
+
+      const options = {
+        hostname: "api.paystack.co",
+        port: 443,
+        path: "/dedicated_account",
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${PAYSTACK_SECRET}`,
+          "Content-Type": "application/json",
+        },
+      };
+
+      const req = https
+        .request(options, (res) => {
+          let data = "";
+
+          res.on("data", (chunk) => {
+            data += chunk;
+          });
+
+          res.on("end", () => {
+            resObj.status(res.statusCode).json({ data: JSON.parse(data) });
+          });
+        })
+        .on("error", (error) => {
+          resObj.status(400).json({ message: error.message });
+        });
+
+      req.write(params);
+      req.end();
+    }
+  } catch (error) {
+    resObj.status(400).json({ message: error.message });
+  }
+});
+
+const initalizeTransaction = ash(async (reqObj, resObj) => {
+  try {
+    const userId = reqObj.user;
+    const mongooseUserId = mongoose.Types.ObjectId(userId);
+    const user = await UserModel.findById(mongooseUserId);
+    if (user) {
+      const errors = validationResult(reqObj);
+      if (!errors.isEmpty()) resObj.status(400).json(errors.array()[0].msg);
+      else {
+        const { amount } = reqObj.body;
+        const oneKoboToNaira = 100
+        const amountInNaira = Number(amount) * oneKoboToNaira
+        const params = JSON.stringify({
+          email: user.email,
+          amount: String(amountInNaira),
+        });
+
+        const options = {
+          hostname: "api.paystack.co",
+          port: 443,
+          path: "/transaction/initialize",
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${PAYSTACK_SECRET}`,
+            "Content-Type": "application/json",
+          },
+        };
+
+        const req = https
+          .request(options, (res) => {
+            let data = "";
+
+            res.on("data", (chunk) => {
+              data += chunk;
+            });
+
+            res.on("end", () => {
+              resObj.status(res.statusCode).json({ data: JSON.parse(data) });
+            });
+          })
+          .on("error", (error) => {
+            resObj.status(400).json({ message: error.message });
+          });
+
+        req.write(params);
+        req.end();
+      }
+    } else resObj.status(400).json({ message: "unable to find user" });
+  } catch (error) {
+    resObj.status(400).json({message: error.message})
   }
 });
 
@@ -135,4 +233,6 @@ module.exports = {
   verifyBankAccountNumber,
   createCustomer,
   fetchCustomer,
+  createDedicatedVirtualAccount,
+  initalizeTransaction,
 };

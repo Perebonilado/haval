@@ -176,6 +176,7 @@ const createDedicatedVirtualAccount = ash(async (reqObj, resObj) => {
   }
 });
 
+
 const initalizeTransaction = ash(async (reqObj, resObj) => {
   try {
     const userId = reqObj.user;
@@ -185,12 +186,21 @@ const initalizeTransaction = ash(async (reqObj, resObj) => {
       const errors = validationResult(reqObj);
       if (!errors.isEmpty()) resObj.status(400).json(errors.array()[0].msg);
       else {
-        const { amount } = reqObj.body;
+        const { amount, initiator, asset_id, asset_type } = reqObj.body;
         const amountInKobo = convertNairaToKobo(amount)
+        // initiator: merchant | buyer
+        // asset_type: book 
+        // asset_id: bookId 
+        const metadata = {
+          initiator: initiator,
+          asset_type: asset_type | null,
+          asset_id: asset_id | null
+        }
         
         const params = JSON.stringify({
           email: user.email,
           amount: String(amountInKobo),
+          metadata: JSON.stringify(metadata)
         });
 
         const options = {

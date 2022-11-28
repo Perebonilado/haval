@@ -11,7 +11,11 @@ const initializeTransactionValidations = [
   body("amount")
     .not()
     .isEmpty()
-    .withMessage({ message: "amount is a required field" })
+    .withMessage({ message: "amount is a required field" }),
+  body("initiator")
+    .not()
+    .isEmpty()
+    .withMessage({ message: "Initiator is a required field" }),
 ];
 
 module.exports = { createDedicatedVirtualAccountValidations, initializeTransactionValidations };

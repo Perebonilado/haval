@@ -7,6 +7,7 @@ const { WalletModel } = require("../models/Wallet")
 const mongoose = require("mongoose");
 const { generateUID } = require("../utils/lib/generateUID")
 const { transactionTypes } = require("../utils/constants")
+const { havalChargeInNaira } = require("../utils/constants")
 
 const generateBookSalesToken = ash(async(req, res)=>{
     /* 
@@ -34,7 +35,7 @@ const generateBookSalesToken = ash(async(req, res)=>{
             try {
                 const userWallet = await WalletModel.findById(user.wallet)
                 if(userWallet) {
-                    if(userWallet.amount > 100){
+                    if(userWallet.amount > havalChargeInNaira){
                         const salesTokenValue = generateUID()
                         const newToken = new SalesTokenModel({
                             amount: book.amount,
@@ -53,7 +54,7 @@ const generateBookSalesToken = ash(async(req, res)=>{
                                 const savedTransaction = transaction.save()
                                 if(savedTransaction) {
                                     try {
-                                        const updatedWallet = await userWallet.updateOne({$inc: {amount: -100}})
+                                        const updatedWallet = await userWallet.updateOne({$inc: {amount: -havalChargeInNaira}})
                                         const updatedBook = await book.updateOne({$inc: {purchaseCount: 1}})
                                         if(updatedWallet && updatedBook) res.status(200).json({message: "token successfully generated", data: {
                                             token: String(salesTokenValue),

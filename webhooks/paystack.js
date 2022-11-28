@@ -35,15 +35,14 @@ const confirmPaymentWebHook = ash(async (req, res) => {
           if (wallet) {
             const amountInKobo = event.data.amount;
             const amountInNaira = convertKoboToNaira(amountInKobo)
-            const walletCreditAmount = amountInNaira - havalChargeInNaira
 
             const updatedWallet = await wallet.updateOne({
-              $inc: { amount: walletCreditAmount },
+              $inc: { amount: amountInNaira },
             });
             const transaction = new TransactionModel({
               wallet_id: user.wallet,
               type: transactionTypes.inflow,
-              description: `NGN${walletCreditAmount} for wallet funding`,
+              description: `NGN${amountInNaira} for wallet funding`,
             });
             const savedTransaction = await transaction.save();
             if (updatedWallet && savedTransaction) {

@@ -6,7 +6,6 @@ const https = require("https");
 const { UserModel } = require("../models/User");
 const mongoose = require("mongoose");
 const { convertNairaToKobo } = require("../utils/lib/currencyConversion")
-const { havalChargeInNaira } = require("../utils/constants")
 
 const getBanksList = ash(async (req, res) => {
   try {
@@ -188,12 +187,10 @@ const initalizeTransaction = ash(async (reqObj, resObj) => {
       else {
         const { amount } = reqObj.body;
         const amountInKobo = convertNairaToKobo(amount)
-        const havalChargeInKobo = convertNairaToKobo(havalChargeInNaira)
-        const totalAmount = amountInKobo + havalChargeInKobo
         
         const params = JSON.stringify({
           email: user.email,
-          amount: String(totalAmount),
+          amount: String(amountInKobo),
         });
 
         const options = {
@@ -228,6 +225,7 @@ const initalizeTransaction = ash(async (reqObj, resObj) => {
       }
     } else resObj.status(400).json({ message: "unable to find user" });
   } catch (error) {
+    console.log(error)
     resObj.status(400).json({message: error.message})
   }
 });

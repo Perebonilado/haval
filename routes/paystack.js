@@ -7,7 +7,7 @@ const {
   createCustomer,
   fetchCustomer,
   createDedicatedVirtualAccount,
-  initalizeTransaction
+  initalizeTransaction,
 } = require("../controllers/paystack");
 
 const {

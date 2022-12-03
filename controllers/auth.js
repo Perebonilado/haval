@@ -1,7 +1,7 @@
 const ash = require("express-async-handler");
 const cloudinary = require("../config/cloudinary");
-const { UserModel } = require("../models/User");
-const { WalletModel } = require("../models/Wallet");
+const { MerchantModel } = require("../models/Merchant");
+const { TokenWalletModel } = require("../models/TokenWallet");
 const { validationResult } = require("express-validator");
 const {
   encryptPassword,
@@ -24,7 +24,7 @@ const signUp = ash(async (req, res) => {
     if (errors.isEmpty()) {
       const { firstName, lastName, email, username, password } = req.body;
       const encryptedPassword = await encryptPassword(password);
-      const user = new UserModel({
+      const merchant = new MerchantModel({
         firstName: firstName,
         lastName: lastName,
         username: username,
@@ -33,29 +33,29 @@ const signUp = ash(async (req, res) => {
         profilePictureURL: imageResult ? imageResult.secure_url : "",
       });
 
-      // save the user
-      const savedUser = await user.save();
+      // save the merchant
+      const savedMerchant = await merchant.save();
 
-      // create a wallet after saving user
-      if (savedUser) {
+      // create a wallet after saving merchant
+      if (savedMerchant) {
         try {
-          const userWallet = new WalletModel({
-            user: savedUser._id,
+          const merchantWallet = new TokenWalletModel({
+            user: savedMerchant._id,
           });
 
           // save the wallet
-          const savedWallet = await userWallet.save();
+          const savedMerchantWallet = await merchantWallet.save();
 
-          // update the user with the wallet ID
-          if (savedWallet) {
-            await UserModel.updateOne(
-              { _id: savedUser._id },
+          // update the merchant with the wallet ID
+          if (savedMerchantWallet) {
+            await MerchantModel.updateOne(
+              { _id: merchant._id },
               {
-                wallet: savedWallet._id,
+                wallet: savedMerchantWallet._id,
               }
             );
-            // generate jwt using users Id, send response
-            const token = generateJwtToken(savedUser._id);
+            // generate jwt using merchants Id, send response
+            const token = generateJwtToken(merchant._id);
             res
               .status(200)
               .json({ message: "Account Creation Successful", token: token });
@@ -79,18 +79,18 @@ const login = ash(async (req, res) => {
     if (errors.isEmpty()) {
       const { email, password } = req.body;
       try {
-        // find the user using email
-        const user = await UserModel.findOne({ email: email });
-        if (user) {
+        // find the merchant using email
+        const merchant = await MerchantModel.findOne({ email: email });
+        if (merchant) {
           // compare password passed to hashed password
           const passwordMatch = await comparePassword({
             plainPassword: password,
-            hashedPassword: user.password,
+            hashedPassword: merchant.password,
           });
           if (passwordMatch) {
-            /* if theres a match, generate a token using the users id and send it
+            /* if theres a match, generate a token using the merchants id and send it
              in the response */
-            const token = generateJwtToken(user._id);
+            const token = generateJwtToken(merchant._id);
             res.status(200).json({ message: "login successful", token: token });
           } else res.status(400).json({ message: "Invalid password" });
         } else {

@@ -3,7 +3,7 @@ const { Schema, model } = require("mongoose");
 const TransactionSchema = new Schema({
   type: {
     type: String,
-    enum: ["inflow", "outflow"],
+    enum: ["token_inflow", "token_outflow", "sales_inflow", "withdrawal_outflow"],
     required: [true, "please provide transaction type"],
   },
   wallet_id: {

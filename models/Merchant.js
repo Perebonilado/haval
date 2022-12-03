@@ -1,6 +1,6 @@
 const { Schema, model } = require("mongoose");
 
-const UserSchema = new Schema({
+const MerchantSchema = new Schema({
   firstName: {
     type: String,
     required: [true, "firstname is a required field"],
@@ -42,4 +42,4 @@ const UserSchema = new Schema({
   created_at: { type: Date, default: Date.now(), immutable: true },
 });
 
-exports.UserModel = model("User", UserSchema);
+exports.MerchantModel = model("Merchant", MerchantSchema);

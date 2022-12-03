@@ -3,9 +3,9 @@ const axios = require("axios");
 const { PAYSTACK_SECRET } = require("../utils/constants");
 const { validationResult } = require("express-validator");
 const https = require("https");
-const { UserModel } = require("../models/User");
+const { MerchantModel } = require("../models/Merchant");
 const mongoose = require("mongoose");
-const { convertNairaToKobo } = require("../utils/lib/currencyConversion")
+const { convertNairaToKobo } = require("../utils/lib/currencyConversion");
 
 const getBanksList = ash(async (req, res) => {
   try {
@@ -54,14 +54,14 @@ const verifyBankAccountNumber = ash(async (req, res) => {
 
 const createCustomer = ash(async (reqObj, resObj) => {
   try {
-    const userId = reqObj.user;
-    const mongooseUserId = mongoose.Types.ObjectId(userId);
-    const user = await UserModel.findById(mongooseUserId);
-    if (user) {
+    const MerchantId = reqObj.user;
+    const mongooseMerchantId = mongoose.Types.ObjectId(MerchantId);
+    const merchant = await MerchantModel.findById(mongooseMerchantId);
+    if (merchant) {
       const params = JSON.stringify({
-        email: user.email,
-        first_name: user.firstName,
-        last_name: user.lastName,
+        email: merchant.email,
+        first_name: merchant.firstName,
+        last_name: merchant.lastName,
       });
 
       const options = {
@@ -95,7 +95,7 @@ const createCustomer = ash(async (reqObj, resObj) => {
 
       req.write(params);
       req.end();
-    } else resObj.status(400).json({ message: "Error fetching user" });
+    } else resObj.status(400).json({ message: "Error fetching merchant" });
   } catch (error) {
     resObj.status(400).json({ message: error.message });
   }
@@ -103,13 +103,13 @@ const createCustomer = ash(async (reqObj, resObj) => {
 
 const fetchCustomer = ash(async (req, res) => {
   try {
-    const userId = req.user;
-    const mongooseUserId = mongoose.Types.ObjectId(userId);
-    const user = await UserModel.findById(mongooseUserId);
-    if (user) {
+    const MerchantId = req.user;
+    const mongooseMerchantId = mongoose.Types.ObjectId(MerchantId);
+    const Merchant = await MerchantModel.findById(mongooseMerchantId);
+    if (Merchant) {
       const customerDetails = await axios({
         port: 443,
-        url: `http://api.paystack.co/customer/${user.email}`,
+        url: `http://api.paystack.co/customer/${Merchant.email}`,
         method: "GET",
         headers: {
           Authorization: `Bearer ${PAYSTACK_SECRET}`,
@@ -124,7 +124,7 @@ const fetchCustomer = ash(async (req, res) => {
           .json({ message: "success", data: customerDetails.data.data });
       } else
         res.status(400).json({ message: "error fetching customer details" });
-    } else res.status(400).json({ message: "Error fetching user" });
+    } else res.status(400).json({ message: "Error fetching Merchant" });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -176,31 +176,30 @@ const createDedicatedVirtualAccount = ash(async (reqObj, resObj) => {
   }
 });
 
-
 const initalizeTransaction = ash(async (reqObj, resObj) => {
   try {
-    const userId = reqObj.user;
-    const mongooseUserId = mongoose.Types.ObjectId(userId);
-    const user = await UserModel.findById(mongooseUserId);
-    if (user) {
+    const MerchantId = reqObj.user;
+    const mongooseMerchantId = mongoose.Types.ObjectId(MerchantId);
+    const merchant = await MerchantModel.findById(mongooseMerchantId);
+    if (merchant) {
       const errors = validationResult(reqObj);
       if (!errors.isEmpty()) resObj.status(400).json(errors.array()[0].msg);
       else {
         const { amount, initiator, asset_id, asset_type } = reqObj.body;
-        const amountInKobo = convertNairaToKobo(amount)
+        const amountInKobo = convertNairaToKobo(amount);
         // initiator: merchant | buyer
-        // asset_type: book 
-        // asset_id: bookId 
+        // asset_type: book
+        // asset_id: bookId
         const metadata = {
           initiator: initiator,
-          asset_type: asset_type | null,
-          asset_id: asset_id | null
-        }
-        
+          asset_type: asset_type | "",
+          asset_id: asset_id | "",
+        };
+
         const params = JSON.stringify({
-          email: user.email,
+          email: merchant.email,
           amount: String(amountInKobo),
-          metadata: JSON.stringify(metadata)
+          metadata: JSON.stringify(metadata),
         });
 
         const options = {
@@ -233,10 +232,10 @@ const initalizeTransaction = ash(async (reqObj, resObj) => {
         req.write(params);
         req.end();
       }
-    } else resObj.status(400).json({ message: "unable to find user" });
+    } else resObj.status(400).json({ message: "unable to find merchant" });
   } catch (error) {
-    console.log(error)
-    resObj.status(400).json({message: error.message})
+    console.log(error);
+    resObj.status(400).json({ message: error.message });
   }
 });
 

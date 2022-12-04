@@ -10,6 +10,7 @@ const {
 const { generateJwtToken } = require("../utils/lib/generateToken");
 const { generateMail, transporter } = require("../config/email");
 const { loginNotification } = require("../templates/loginNotification");
+const { signupNotification } = require("../templates/signupNotification")
 
 const signUp = ash(async (req, res) => {
   try {
@@ -58,6 +59,14 @@ const signUp = ash(async (req, res) => {
             );
             // generate jwt using merchants Id, send response
             const token = generateJwtToken(merchant._id);
+            const mail = generateMail({
+              to: merchant.email,
+              subject: "Haval Account Successfully Created",
+              html: signupNotification({
+                name: `${merchant.firstName} ${merchant.lastName}`,
+              }),
+            });
+            await transporter.sendMail(mail);
             res
               .status(200)
               .json({ message: "Account Creation Successful", token: token });

@@ -8,6 +8,8 @@ const {
   comparePassword,
 } = require("../utils/lib/passwordEncryption");
 const { generateJwtToken } = require("../utils/lib/generateToken");
+const { generateMail, transporter } = require("../config/email");
+const { loginNotification } = require("../templates/loginNotification");
 
 const signUp = ash(async (req, res) => {
   try {
@@ -91,6 +93,14 @@ const login = ash(async (req, res) => {
             /* if theres a match, generate a token using the merchants id and send it
              in the response */
             const token = generateJwtToken(merchant._id);
+            const mail = generateMail({
+              to: merchant.email,
+              subject: "Login to haval account",
+              html: loginNotification({
+                name: `${merchant.firstName} ${merchant.lastName}`,
+              }),
+            });
+            await transporter.sendMail(mail);
             res.status(200).json({ message: "login successful", token: token });
           } else res.status(400).json({ message: "Invalid password" });
         } else {

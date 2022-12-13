@@ -1,9 +1,12 @@
 const express = require("express")
 const bodyParser = require('body-parser')
 const dotenv = require("dotenv")
+const compression = require("compression");
+const helmet = require("helmet");
 dotenv.config()
 const { connectDB } = require("./config/db")
 const app = express()
+app.use(helmet());
 const PORT = process.env.PORT
 const { catchErrors } = require("./middleware/error")
 connectDB().catch((err)=>console.error(err))
@@ -14,6 +17,7 @@ const salesTokenRoutes = require("./routes/salesToken")
 const paystackRoutes = require("./routes/paystack")
 const webHookRoutes = require("./routes/webhooks")
 
+app.use(compression())
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 

@@ -57,6 +57,7 @@ const signUp = ash(async (req, res) => {
                 wallet: savedMerchantWallet._id,
               }
             );
+            // 
             // generate jwt using merchants Id, send response
             const token = generateJwtToken(merchant._id);
             const mail = generateMail({

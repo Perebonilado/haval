@@ -99,7 +99,7 @@ const confirmPaymentWebHook = ash(async (req, res) => {
                   const amountInNaira = convertKoboToNaira(amountInKobo);
                   const merchantGrossProfit =
                     amountInNaira - havalChargeInNaira;
-                    
+
                   const updatedMerchantRevenueWallet =
                     await merchantRevenueWallet.updateOne({
                       $inc: { amount: merchantGrossProfit },
@@ -113,6 +113,7 @@ const confirmPaymentWebHook = ash(async (req, res) => {
 
                     const savedTransaction = await transaction.save();
                     if (savedTransaction) {
+                      // send email
                       res.end();
                     }
                   }

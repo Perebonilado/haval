@@ -46,9 +46,14 @@ const UserSchema = new Schema({
   books: {
     type: [{ type: Schema.Types.ObjectId, ref: "Books" }],
   },
-  wallet: {
+  tokenWallet: {
     type: Schema.Types.ObjectId, 
-    ref: "Wallet",
+    ref: "TokenWallet",
+    default: null
+  },
+  revenueWallet: {
+    type: Schema.Types.ObjectId, 
+    ref: "RevenueWallet",
     default: null
   },
   updated_at: { type: Date, default: Date.now() },

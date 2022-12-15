@@ -11,6 +11,7 @@ const { generateJwtToken } = require("../utils/lib/generateToken");
 const { generateMail, transporter } = require("../config/email");
 const { loginNotification } = require("../templates/loginNotification");
 const { signupNotification } = require("../templates/signupNotification");
+const { RevenueWalletModel } = require("../models/RevenueWallet");
 
 const signUp = ash(async (req, res) => {
   try {
@@ -43,19 +44,25 @@ const signUp = ash(async (req, res) => {
       // create a wallet after saving User
       if (savedUser) {
         try {
-          const UserWallet = new TokenWalletModel({
+          const UserTokenWallet = new TokenWalletModel({
             user: savedUser._id,
           });
 
-          // save the wallet
-          const savedUserWallet = await UserWallet.save();
+          const UserRevenueWallet = new RevenueWalletModel({
+            user: savedUser._id
+          })
 
-          // update the User with the wallet ID
-          if (savedUserWallet) {
+          // save the wallet
+          const savedUserTokenWallet = await UserTokenWallet.save();
+          const savedUserRevenueWallet = await UserRevenueWallet.save()
+
+          // update the User with the wallet IDs
+          if (savedUserTokenWallet && savedUserRevenueWallet) {
             await UserModel.updateOne(
               { _id: User._id },
               {
-                wallet: savedUserWallet._id,
+                tokenWallet: savedUserTokenWallet._id,
+                revenueWallet: savedUserRevenueWallet._id
               }
             );
             //

@@ -9,7 +9,7 @@ const { havalChargeInNaira } = require("../utils/constants");
 const { convertKoboToNaira } = require("../utils/lib/currencyConversion");
 const { BookModel } = require("../models/Book");
 const { RevenueWalletModel } = require("../models/RevenueWallet");
-const mongoose = require("mongoose")
+const mongoose = require("mongoose");
 
 const confirmPaymentWebHook = ash(async (req, res) => {
   //validate event
@@ -87,14 +87,19 @@ const confirmPaymentWebHook = ash(async (req, res) => {
                 const updatedUser = await User.updateOne({
                   $push: { books: book._id },
                 });
-                const merchantRevenueWallet = await RevenueWalletModel.findOne(
-                  {user: book.user}
-                );
-                const updatedBook = await book.updateOne({$inc: {purchaseCount: 1}})
+                const merchantRevenueWallet = await RevenueWalletModel.findOne({
+                  user: book.user,
+                });
+                const updatedBook = await book.updateOne({
+                  $inc: { purchaseCount: 1 },
+                });
 
                 if (merchantRevenueWallet && updatedUser && updatedBook) {
+                  const amountInKobo = event.data.amount;
+                  const amountInNaira = convertKoboToNaira(amountInKobo);
                   const merchantGrossProfit =
-                    Number(event.data.amount) - havalChargeInNaira;
+                    amountInNaira - havalChargeInNaira;
+                    
                   const updatedMerchantRevenueWallet =
                     await merchantRevenueWallet.updateOne({
                       $inc: { amount: merchantGrossProfit },

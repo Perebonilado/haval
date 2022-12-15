@@ -34,11 +34,11 @@ const UserSchema = new Schema({
   },
   isMerchant: {
     type: Boolean,
-    required: [true, "please signify if user is a merchant"]
+    default: false
   },
   isCustomer: {
     type: Boolean,
-    required: [true, "please signify if user is a customer"]
+    default: true
   },
   profilePictureURL: {
     type: String,

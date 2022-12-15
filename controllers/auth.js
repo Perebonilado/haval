@@ -1,6 +1,6 @@
 const ash = require("express-async-handler");
 const cloudinary = require("../config/cloudinary");
-const { Us, UserModelerModel } = require("../models/User");
+const { UserModel } = require("../models/User");
 const { TokenWalletModel } = require("../models/TokenWallet");
 const { validationResult } = require("express-validator");
 const {

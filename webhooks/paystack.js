@@ -37,7 +37,7 @@ const confirmPaymentWebHook = ash(async (req, res) => {
             email: event.data.customer.email,
           });
           if (User) {
-            const wallet = TokenWalletModel.findById(User.wallet);
+            const wallet = TokenWalletModel.findById(User.tokenWallet);
             if (wallet) {
               const amountInKobo = event.data.amount;
               const amountInNaira = convertKoboToNaira(amountInKobo);
@@ -46,7 +46,7 @@ const confirmPaymentWebHook = ash(async (req, res) => {
                 $inc: { amount: amountInNaira },
               });
               const transaction = new TransactionModel({
-                wallet_id: User.wallet,
+                wallet_id: User.tokenWallet,
                 type: transactionTypes.tokenInflow,
                 description: `NGN${amountInNaira} for wallet funding`,
               });

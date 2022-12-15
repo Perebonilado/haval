@@ -192,8 +192,8 @@ const initalizeTransaction = ash(async (reqObj, resObj) => {
         // asset_id: bookId
         const metadata = {
           initiator: initiator,
-          asset_type: asset_type | "",
-          asset_id: asset_id | "",
+          asset_type: asset_type || "",
+          asset_id: asset_id || "",
         };
 
         const params = JSON.stringify({

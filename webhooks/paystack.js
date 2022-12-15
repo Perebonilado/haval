@@ -7,6 +7,8 @@ const { transactionTypes } = require("../utils/constants");
 const { TransactionModel } = require("../models/Transaction");
 const { havalChargeInNaira } = require("../utils/constants");
 const { convertKoboToNaira } = require("../utils/lib/currencyConversion");
+const { BookModel } = require("../models/Book");
+const { RevenueWalletModel } = require("../models/RevenueWallet");
 
 const confirmPaymentWebHook = ash(async (req, res) => {
   //validate event
@@ -54,6 +56,59 @@ const confirmPaymentWebHook = ash(async (req, res) => {
               if (updatedWallet && savedTransaction) {
                 // send email
                 res.end();
+              }
+            }
+          }
+        } catch (error) {
+          res.status(200);
+        }
+      } else if (event.data.metadata.initiator === "customer") {
+        try {
+          const User = await UserModel.findOne({
+            email: event.data.customer.email,
+          });
+          if (User) {
+            /* 
+            1. check for the asset type and find the asset using the asset id accordingly
+            2. update the user with that asset
+            3. update the merchants revenue wallet 
+            4. record the transaction accordingly
+            */
+            const assetType = event.data.metadata.asset_type;
+            const assetId = event.data.metadata.asset_id;
+            const mongooseAssetId = mongoose.Types.ObjectId(assetId);
+
+            // book purchase
+            if (assetType === "book") {
+              const book = await BookModel.findById(mongooseAssetId);
+              if (book) {
+                const updatedUser = await User.updateOne({
+                  $push: { books: book._id },
+                });
+                const merchantRevenueWallet = await RevenueWalletModel.findById(
+                  book.user
+                );
+
+                if (merchantRevenueWallet && updatedUser) {
+                  const merchantGrossProfit =
+                    Number(event.data.amount) - havalChargeInNaira;
+                  const updatedMerchantRevenueWallet =
+                    await merchantRevenueWallet.updateOne({
+                      $inc: { amount: merchantGrossProfit },
+                    });
+                  if (updatedMerchantRevenueWallet) {
+                    const transaction = new TransactionModel({
+                      wallet_id: merchantRevenueWallet._id,
+                      type: transactionTypes.salesInflow,
+                      description: `NGN${amountInNaira} for book sales - ${book.title}`,
+                    });
+
+                    const savedTransaction = await transaction.save();
+                    if (savedTransaction) {
+                      res.end();
+                    }
+                  }
+                }
               }
             }
           }

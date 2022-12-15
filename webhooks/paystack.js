@@ -9,6 +9,7 @@ const { havalChargeInNaira } = require("../utils/constants");
 const { convertKoboToNaira } = require("../utils/lib/currencyConversion");
 const { BookModel } = require("../models/Book");
 const { RevenueWalletModel } = require("../models/RevenueWallet");
+const mongoose = require("mongoose")
 
 const confirmPaymentWebHook = ash(async (req, res) => {
   //validate event
@@ -72,7 +73,8 @@ const confirmPaymentWebHook = ash(async (req, res) => {
             1. check for the asset type and find the asset using the asset id accordingly
             2. update the user with that asset
             3. update the merchants revenue wallet 
-            4. record the transaction accordingly
+            4. update book purchase count
+            5. record the transaction accordingly
             */
             const assetType = event.data.metadata.asset_type;
             const assetId = event.data.metadata.asset_id;
@@ -88,8 +90,9 @@ const confirmPaymentWebHook = ash(async (req, res) => {
                 const merchantRevenueWallet = await RevenueWalletModel.findById(
                   book.user
                 );
+                const updatedBook = await book.updateOne({$inc: {purchaseCount: 1}})
 
-                if (merchantRevenueWallet && updatedUser) {
+                if (merchantRevenueWallet && updatedUser && updatedBook) {
                   const merchantGrossProfit =
                     Number(event.data.amount) - havalChargeInNaira;
                   const updatedMerchantRevenueWallet =

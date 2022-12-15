@@ -25,7 +25,7 @@ const signUp = ash(async (req, res) => {
     // validate request body, and continue if no errors
     const errors = validationResult(req.body);
     if (errors.isEmpty()) {
-      const { firstName, lastName, email, username, password } = req.body;
+      const { firstName, lastName, email, username, password, isMerchant } = req.body;
       const encryptedPassword = await encryptPassword(password);
       const User = new UserModel({
         firstName: firstName,
@@ -33,6 +33,7 @@ const signUp = ash(async (req, res) => {
         username: username,
         password: encryptedPassword,
         email: email,
+        isMerchant: isMerchant==="true" ? true : false,
         profilePictureURL: imageResult ? imageResult.secure_url : "",
       });
 

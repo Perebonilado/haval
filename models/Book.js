@@ -19,7 +19,7 @@ const BookSchema = new Schema({
   },
   user: {
     type: Schema.Types.ObjectId,
-    ref: "Merchant",
+    ref: "User",
     required: [true, "please provide linked user id"],
   },
   releaseDate: {

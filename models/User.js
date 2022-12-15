@@ -1,6 +1,6 @@
 const { Schema, model } = require("mongoose");
 
-const MerchantSchema = new Schema({
+const UserSchema = new Schema({
   firstName: {
     type: String,
     required: [true, "firstname is a required field"],
@@ -27,6 +27,19 @@ const MerchantSchema = new Schema({
     type: String,
     required: [true, "password is a required field"],
   },
+  role: {
+    type: String,
+    enum: [ "admin_user", "regular_user" ],
+    default: "regular_user"
+  },
+  isMerchant: {
+    type: Boolean,
+    required: [true, "please signify if user is a merchant"]
+  },
+  isCustomer: {
+    type: Boolean,
+    required: [true, "please signify if user is a customer"]
+  },
   profilePictureURL: {
     type: String,
   },
@@ -42,4 +55,4 @@ const MerchantSchema = new Schema({
   created_at: { type: Date, default: Date.now(), immutable: true },
 });
 
-exports.MerchantModel = model("Merchant", MerchantSchema);
+exports.UserModel = model("User", UserSchema);

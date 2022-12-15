@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { addBook, getAllMerchantsBooks, getMerchantsBookById, deleteMerchantsBook,  } = require("../controllers/book");
+const { addBook, getAllUsersBooks, getUsersBookById, deleteUsersBook,  } = require("../controllers/book");
 const { authGuard } = require("../middleware/authGuard");
 const { uploadBookDetails } = require("../config/multer");
 const { addBookValidations } = require("../validations/book");
@@ -22,10 +22,10 @@ router.post(
   addBook
 );
 
-router.get("/retrieve-all", authGuard, getAllMerchantsBooks);
+router.get("/retrieve-all", authGuard, getAllUsersBooks);
 
-router.get("/retrieve-one/:bookId", authGuard, getMerchantsBookById);
+router.get("/retrieve-one/:bookId", authGuard, getUsersBookById);
 
-router.delete("/delete/:bookId", authGuard, deleteMerchantsBook)
+router.delete("/delete/:bookId", authGuard, deleteUsersBook)
 
 module.exports = router;

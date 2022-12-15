@@ -3,7 +3,7 @@ const axios = require("axios");
 const { PAYSTACK_SECRET } = require("../utils/constants");
 const { validationResult } = require("express-validator");
 const https = require("https");
-const { MerchantModel } = require("../models/Merchant");
+const { UserModel } = require("../models/User");
 const mongoose = require("mongoose");
 const { convertNairaToKobo } = require("../utils/lib/currencyConversion");
 
@@ -54,14 +54,14 @@ const verifyBankAccountNumber = ash(async (req, res) => {
 
 const createCustomer = ash(async (reqObj, resObj) => {
   try {
-    const MerchantId = reqObj.user;
-    const mongooseMerchantId = mongoose.Types.ObjectId(MerchantId);
-    const merchant = await MerchantModel.findById(mongooseMerchantId);
-    if (merchant) {
+    const UserId = reqObj.user;
+    const mongooseUserId = mongoose.Types.ObjectId(UserId);
+    const User = await UserModel.findById(mongooseUserId);
+    if (User) {
       const params = JSON.stringify({
-        email: merchant.email,
-        first_name: merchant.firstName,
-        last_name: merchant.lastName,
+        email: User.email,
+        first_name: User.firstName,
+        last_name: User.lastName,
       });
 
       const options = {
@@ -95,7 +95,7 @@ const createCustomer = ash(async (reqObj, resObj) => {
 
       req.write(params);
       req.end();
-    } else resObj.status(400).json({ message: "Error fetching merchant" });
+    } else resObj.status(400).json({ message: "Error fetching User" });
   } catch (error) {
     resObj.status(400).json({ message: error.message });
   }
@@ -103,13 +103,13 @@ const createCustomer = ash(async (reqObj, resObj) => {
 
 const fetchCustomer = ash(async (req, res) => {
   try {
-    const MerchantId = req.user;
-    const mongooseMerchantId = mongoose.Types.ObjectId(MerchantId);
-    const Merchant = await MerchantModel.findById(mongooseMerchantId);
-    if (Merchant) {
+    const UserId = req.user;
+    const mongooseUserId = mongoose.Types.ObjectId(UserId);
+    const User = await UserModel.findById(mongooseUserId);
+    if (User) {
       const customerDetails = await axios({
         port: 443,
-        url: `http://api.paystack.co/customer/${Merchant.email}`,
+        url: `http://api.paystack.co/customer/${User.email}`,
         method: "GET",
         headers: {
           Authorization: `Bearer ${PAYSTACK_SECRET}`,
@@ -124,7 +124,7 @@ const fetchCustomer = ash(async (req, res) => {
           .json({ message: "success", data: customerDetails.data.data });
       } else
         res.status(400).json({ message: "error fetching customer details" });
-    } else res.status(400).json({ message: "Error fetching Merchant" });
+    } else res.status(400).json({ message: "Error fetching User" });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -178,16 +178,16 @@ const createDedicatedVirtualAccount = ash(async (reqObj, resObj) => {
 
 const initalizeTransaction = ash(async (reqObj, resObj) => {
   try {
-    const MerchantId = reqObj.user;
-    const mongooseMerchantId = mongoose.Types.ObjectId(MerchantId);
-    const merchant = await MerchantModel.findById(mongooseMerchantId);
-    if (merchant) {
+    const UserId = reqObj.user;
+    const mongooseUserId = mongoose.Types.ObjectId(UserId);
+    const User = await UserModel.findById(mongooseUserId);
+    if (User) {
       const errors = validationResult(reqObj);
       if (!errors.isEmpty()) resObj.status(400).json(errors.array()[0].msg);
       else {
         const { amount, initiator, asset_id, asset_type } = reqObj.body;
         const amountInKobo = convertNairaToKobo(amount);
-        // initiator: merchant | buyer
+        // initiator: merchant | customer
         // asset_type: book
         // asset_id: bookId
         const metadata = {
@@ -197,7 +197,7 @@ const initalizeTransaction = ash(async (reqObj, resObj) => {
         };
 
         const params = JSON.stringify({
-          email: merchant.email,
+          email: User.email,
           amount: String(amountInKobo),
           metadata: JSON.stringify(metadata),
         });
@@ -232,7 +232,7 @@ const initalizeTransaction = ash(async (reqObj, resObj) => {
         req.write(params);
         req.end();
       }
-    } else resObj.status(400).json({ message: "unable to find merchant" });
+    } else resObj.status(400).json({ message: "unable to find User" });
   } catch (error) {
     console.log(error);
     resObj.status(400).json({ message: error.message });

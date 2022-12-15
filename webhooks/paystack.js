@@ -1,7 +1,7 @@
 const ash = require("express-async-handler");
 const crypto = require("crypto");
 const secret = process.env.PAYSTACK_SECRET;
-const { MerchantModel } = require("../models/Merchant");
+const { UserModel } = require("../models/User");
 const { TokenWalletModel } = require("../models/TokenWallet");
 const { transactionTypes } = require("../utils/constants");
 const { TransactionModel } = require("../models/Transaction");
@@ -25,19 +25,19 @@ const confirmPaymentWebHook = ash(async (req, res) => {
       // check the initiator
       if (event.data.metadata.initiator === "merchant") {
         /*
-       if initiator is a merchant then fund the merchants token wallet
+       if initiator is a User then fund the Users token wallet
        STEPS
-        1. find merchant
+        1. find User
         2. find wallet
         3. credit wallet
         4. record transaction as inflow
         */
         try {
-          const merchant = await MerchantModel.findOne({
+          const User = await UserModel.findOne({
             email: event.data.customer.email,
           });
-          if (merchant) {
-            const wallet = TokenWalletModel.findById(merchant.wallet);
+          if (User) {
+            const wallet = TokenWalletModel.findById(User.wallet);
             if (wallet) {
               const amountInKobo = event.data.amount;
               const amountInNaira = convertKoboToNaira(amountInKobo);
@@ -46,7 +46,7 @@ const confirmPaymentWebHook = ash(async (req, res) => {
                 $inc: { amount: amountInNaira },
               });
               const transaction = new TransactionModel({
-                wallet_id: merchant.wallet,
+                wallet_id: User.wallet,
                 type: transactionTypes.tokenInflow,
                 description: `NGN${amountInNaira} for wallet funding`,
               });

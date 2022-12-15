@@ -1,6 +1,6 @@
 const ash = require("express-async-handler");
 const cloudinary = require("../config/cloudinary");
-const { MerchantModel } = require("../models/Merchant");
+const { Us, UserModelerModel } = require("../models/User");
 const { TokenWalletModel } = require("../models/TokenWallet");
 const { validationResult } = require("express-validator");
 const {
@@ -10,7 +10,7 @@ const {
 const { generateJwtToken } = require("../utils/lib/generateToken");
 const { generateMail, transporter } = require("../config/email");
 const { loginNotification } = require("../templates/loginNotification");
-const { signupNotification } = require("../templates/signupNotification")
+const { signupNotification } = require("../templates/signupNotification");
 
 const signUp = ash(async (req, res) => {
   try {
@@ -27,7 +27,7 @@ const signUp = ash(async (req, res) => {
     if (errors.isEmpty()) {
       const { firstName, lastName, email, username, password } = req.body;
       const encryptedPassword = await encryptPassword(password);
-      const merchant = new MerchantModel({
+      const User = new UserModel({
         firstName: firstName,
         lastName: lastName,
         username: username,
@@ -36,35 +36,35 @@ const signUp = ash(async (req, res) => {
         profilePictureURL: imageResult ? imageResult.secure_url : "",
       });
 
-      // save the merchant
-      const savedMerchant = await merchant.save();
+      // save the User
+      const savedUser = await User.save();
 
-      // create a wallet after saving merchant
-      if (savedMerchant) {
+      // create a wallet after saving User
+      if (savedUser) {
         try {
-          const merchantWallet = new TokenWalletModel({
-            user: savedMerchant._id,
+          const UserWallet = new TokenWalletModel({
+            user: savedUser._id,
           });
 
           // save the wallet
-          const savedMerchantWallet = await merchantWallet.save();
+          const savedUserWallet = await UserWallet.save();
 
-          // update the merchant with the wallet ID
-          if (savedMerchantWallet) {
-            await MerchantModel.updateOne(
-              { _id: merchant._id },
+          // update the User with the wallet ID
+          if (savedUserWallet) {
+            await UserModel.updateOne(
+              { _id: User._id },
               {
-                wallet: savedMerchantWallet._id,
+                wallet: savedUserWallet._id,
               }
             );
-            // 
-            // generate jwt using merchants Id, send response
-            const token = generateJwtToken(merchant._id);
+            //
+            // generate jwt using Users Id, send response
+            const token = generateJwtToken(User._id);
             const mail = generateMail({
-              to: merchant.email,
+              to: User.email,
               subject: "Haval Account Successfully Created",
               html: signupNotification({
-                name: `${merchant.firstName} ${merchant.lastName}`,
+                name: `${User.firstName} ${User.lastName}`,
               }),
             });
             await transporter.sendMail(mail);
@@ -91,23 +91,23 @@ const login = ash(async (req, res) => {
     if (errors.isEmpty()) {
       const { email, password } = req.body;
       try {
-        // find the merchant using email
-        const merchant = await MerchantModel.findOne({ email: email });
-        if (merchant) {
+        // find the User using email
+        const User = await UserModel.findOne({ email: email });
+        if (User) {
           // compare password passed to hashed password
           const passwordMatch = await comparePassword({
             plainPassword: password,
-            hashedPassword: merchant.password,
+            hashedPassword: User.password,
           });
           if (passwordMatch) {
-            /* if theres a match, generate a token using the merchants id and send it
+            /* if theres a match, generate a token using the Users id and send it
              in the response */
-            const token = generateJwtToken(merchant._id);
+            const token = generateJwtToken(User._id);
             const mail = generateMail({
-              to: merchant.email,
+              to: User.email,
               subject: "Login to haval account",
               html: loginNotification({
-                name: `${merchant.firstName} ${merchant.lastName}`,
+                name: `${User.firstName} ${User.lastName}`,
               }),
             });
             await transporter.sendMail(mail);

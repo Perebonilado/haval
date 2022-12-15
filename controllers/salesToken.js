@@ -1,6 +1,6 @@
 const ash = require("express-async-handler");
 const { BookModel } = require("../models/Book");
-const { MerchantModel } = require("../models/Merchant");
+const { UserModel } = require("../models/User");
 const { SalesTokenModel } = require("../models/SalesToken");
 const { TransactionModel } = require("../models/Transaction");
 const { TokenWalletModel } = require("../models/TokenWallet");
@@ -11,52 +11,52 @@ const { havalChargeInNaira } = require("../utils/constants");
 
 const generateBookSalesToken = ash(async (req, res) => {
   /* 
-    1. find merchant and book
-    2. check if merchant is the owner of the book
+    1. find User and book
+    2. check if User is the owner of the book
     3. find wallet
-    4. check if merchant has enough money to generate token
-    5. if 4 is true, charge merchant wallet and generate token
+    4. check if User has enough money to generate token
+    5. if 4 is true, charge User wallet and generate token
     5. store token in db 
     6. record transaction as outflow with description
     7. update wallet amount
     8. update purchase count on book
     */
   try {
-    const merchantId = req.user;
+    const UserId = req.user;
     const { bookId } = req.params;
-    const mongoosemerchantId = mongoose.Types.ObjectId(merchantId);
+    const mongooseUserId = mongoose.Types.ObjectId(UserId);
     const mongooseBookId = mongoose.Types.ObjectId(bookId);
 
-    const merchant = await MerchantModel.findById(mongoosemerchantId);
+    const User = await UserModel.findById(mongooseUserId);
     const book = await BookModel.findById(mongooseBookId);
 
-    if (merchant && book) {
-      if (book.user.equals(merchant._id)) {
+    if (User && book) {
+      if (book.user.equals(User._id)) {
         try {
-          const merchantWallet = await TokenWalletModel.findById(
-            merchant.wallet
+          const UserWallet = await TokenWalletModel.findById(
+            User.wallet
           );
-          if (merchantWallet) {
-            if (merchantWallet.amount > havalChargeInNaira) {
+          if (UserWallet) {
+            if (UserWallet.amount > havalChargeInNaira) {
               const salesTokenValue = generateUID();
               const newToken = new SalesTokenModel({
                 amount: book.amount,
                 book: book._id,
-                user: merchant._id,
+                user: User._id,
                 token: salesTokenValue,
               });
               const savedToken = await newToken.save();
               if (savedToken) {
                 try {
                   const transaction = new TransactionModel({
-                    wallet_id: merchantWallet._id,
+                    wallet_id: UserWallet._id,
                     type: transactionTypes.tokenOutflow,
                     description: `outflow for generating token worth ${savedToken.amount} for ${book.title}`,
                   });
                   const savedTransaction = transaction.save();
                   if (savedTransaction) {
                     try {
-                      const updatedWallet = await merchantWallet.updateOne({
+                      const updatedWallet = await UserWallet.updateOne({
                         $inc: { amount: -havalChargeInNaira },
                       });
                       const updatedBook = await book.updateOne({
@@ -92,7 +92,7 @@ const generateBookSalesToken = ash(async (req, res) => {
         }
       } else
         res.status(400).json({
-          message: "unable to generate token for a different merchants's book",
+          message: "unable to generate token for a different Users's book",
         });
     } else res.status(400).json({ message: "error finding resource" });
   } catch (error) {

@@ -3,7 +3,7 @@ const { Schema, model } = require("mongoose");
 const SalesTokenSchema = new Schema({
   user: {
     type: Schema.Types.ObjectId,
-    ref: "Merchant",
+    ref: "User",
     required: [true, "Provide a valid user generating token"],
   },
   amount: {

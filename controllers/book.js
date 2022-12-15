@@ -2,7 +2,7 @@ const ash = require("express-async-handler");
 const cloudinary = require("../config/cloudinary");
 const { validationResult } = require("express-validator");
 const { BookModel } = require("../models/Book");
-const { MerchantModel } = require("../models/Merchant");
+const { UserModel } = require("../models/User");
 const mongoose = require("mongoose");
 
 const addBook = ash(async (req, res) => {
@@ -12,7 +12,7 @@ const addBook = ash(async (req, res) => {
     if (errors.isEmpty()) {
       const { title, author, releaseDate, amount, genre, description } =
         req.body;
-      const merchantId = req.user;
+      const UserId = req.user;
 
       if (!req.files)
         res.status(200).json({ message: "please upload book and book cover" });
@@ -38,13 +38,13 @@ const addBook = ash(async (req, res) => {
                 description: description,
                 coverImageUrl: coverImageUrl.secure_url,
                 bookUrl: bookUrl.secure_url,
-                user: mongoose.Types.ObjectId(merchantId),
+                user: mongoose.Types.ObjectId(UserId),
               });
               const savedBook = await createdBook.save();
               if (savedBook) {
                 try {
-                  await MerchantModel.findOneAndUpdate(
-                    { _id: mongoose.Types.ObjectId(merchantId) },
+                  await UserModel.findOneAndUpdate(
+                    { _id: mongoose.Types.ObjectId(UserId) },
                     { $push: { books: savedBook._id } }
                   );
                   res
@@ -71,57 +71,57 @@ const addBook = ash(async (req, res) => {
   }
 });
 
-const getAllMerchantsBooks = ash(async (req, res) => {
+const getAllUsersBooks = ash(async (req, res) => {
   try {
-    const merchantId = req.user;
-    const mongoosemerchantId = mongoose.Types.ObjectId(merchantId);
-    const merchantsBooks = await BookModel.find()
+    const UserId = req.user;
+    const mongooseUserId = mongoose.Types.ObjectId(UserId);
+    const UsersBooks = await BookModel.find()
       .where("user")
-      .equals(mongoosemerchantId);
+      .equals(mongooseUserId);
 
-    if (merchantsBooks)
-      res.status(200).json({ message: "Success", data: merchantsBooks });
+    if (UsersBooks)
+      res.status(200).json({ message: "Success", data: UsersBooks });
     else res.status(400).json({ message: "error getting books" });
   } catch (error) {
     res.status(400).json({ message: "error getting books" });
   }
 });
 
-const getMerchantsBookById = ash(async (req, res) => {
+const getUsersBookById = ash(async (req, res) => {
   try {
-    const merchantId = req.user;
+    const UserId = req.user;
     const { bookId } = req.params;
-    const mongoosemerchantId = mongoose.Types.ObjectId(merchantId);
+    const mongooseUserId = mongoose.Types.ObjectId(UserId);
     const mongooseBookId = mongoose.Types.ObjectId(bookId);
-    const merchantsBook = await BookModel.find({
-      user: mongoosemerchantId,
+    const UsersBook = await BookModel.find({
+      user: mongooseUserId,
       _id: mongooseBookId,
     }).populate("user");
 
-    if (merchantsBook) res.status(200).json({ message: "Success", data: merchantsBook });
+    if (UsersBook) res.status(200).json({ message: "Success", data: UsersBook });
     else res.status(400).json({ message: "book does not exist" });
   } catch (error) {
     res.status(400).json({ message: "error getting book" });
   }
 });
 
-const deleteMerchantsBook = ash(async (req, res) => {
+const deleteUsersBook = ash(async (req, res) => {
   try {
-    const merchantId = req.user;
+    const UserId = req.user;
     const { bookId } = req.params;
-    const mongoosemerchantId = mongoose.Types.ObjectId(merchantId);
+    const mongooseUserId = mongoose.Types.ObjectId(UserId);
     const mongooseBookId = mongoose.Types.ObjectId(bookId);
 
     const deletedBook = await BookModel.findOneAndDelete({
-      user: merchantId,
+      user: UserId,
       _id: bookId,
     });
     if (deletedBook) {
-      const removedBookFromMerchantsBooksArray = await MerchantModel.findOneAndUpdate(
-        { _id: mongoosemerchantId },
+      const removedBookFromUsersBooksArray = await UserModel.findOneAndUpdate(
+        { _id: mongooseUserId },
         { $pull: { books: mongooseBookId } }
       );
-      if (removedBookFromMerchantsBooksArray)
+      if (removedBookFromUsersBooksArray)
         res.status(200).json({ message: "book deleted successfully" });
     } else res.status(400).json({ message: "error deleting book" });
   } catch (error) {
@@ -129,4 +129,4 @@ const deleteMerchantsBook = ash(async (req, res) => {
   }
 });
 
-module.exports = { addBook, getAllMerchantsBooks, getMerchantsBookById, deleteMerchantsBook };
+module.exports = { addBook, getAllUsersBooks, getUsersBookById, deleteUsersBook };

@@ -52,7 +52,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD
                                     <td>
                                         <div style="padding: 3.5rem 2.5rem; color: #495057;">
                                             <p>Dear ${name},</p>
-                                            <p>Login activity to your haval merchant account detected on ${new Date()}</p>
+                                            <p>Login activity to your haval account detected on ${new Date()}</p>
                                             <p style="margin-top: 4rem;">Best regards,</p>
                                             <p>Haval</p>
                                         </div>

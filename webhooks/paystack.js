@@ -87,8 +87,8 @@ const confirmPaymentWebHook = ash(async (req, res) => {
                 const updatedUser = await User.updateOne({
                   $push: { books: book._id },
                 });
-                const merchantRevenueWallet = await RevenueWalletModel.findById(
-                  book.user
+                const merchantRevenueWallet = await RevenueWalletModel.findOne(
+                  {user: book.user}
                 );
                 const updatedBook = await book.updateOne({$inc: {purchaseCount: 1}})
 

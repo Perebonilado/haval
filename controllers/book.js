@@ -170,16 +170,22 @@ const deleteCustomerBookById = ash(async (req, res) => {
 const searchBookByTitle = ash(async (req, res) => {
   try {
     const { title } = req.query;
-    if(title){
-      const booksArr = await BookModel.find({
-        title: { $regex: title, $options: "i" },
-      });
-      if (booksArr) {
-        res.status(200).json({ books: booksArr });
-      }
-    }
-    else {
-      res.status(400).json({message: "No query passed"})
+    const UserId = req.user;
+    const mongooseUserId = mongoose.Types.ObjectId(UserId);
+
+    const booksArr = await BookModel.find({
+      title: { $regex: title, $options: "i" },
+    });
+    const User = await UserModel.findById(mongooseUserId)
+    if (booksArr && User) {
+      const usersBooks = User.books.map((item)=>item.title)
+      const mutatedBooksArr = booksArr.map((item)=>{
+        if(usersBooks.includes(item.title)){
+          return {...item, isPurchased: true}
+        }
+        else return {...item, isPurchased: false}
+      })
+      res.status(200).json({ books: mutatedBooksArr });
     }
   } catch (error) {
     res.status(400).json({ message: error.message });

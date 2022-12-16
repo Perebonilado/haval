@@ -44,7 +44,7 @@ const UserSchema = new Schema({
     type: String,
   },
   books: {
-    type: [{ type: Schema.Types.ObjectId, ref: "Books" }],
+    type: [{ type: Schema.Types.ObjectId, ref: "Book" }],
   },
   tokenWallet: {
     type: Schema.Types.ObjectId, 

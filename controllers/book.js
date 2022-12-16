@@ -135,7 +135,7 @@ const getAllCustomersBooks = ash(async (req, res) => {
   try {
     const UserId = req.user;
     const mongooseUserId = mongoose.Types.ObjectId(UserId);
-    const user = await UserModel.findById(mongooseUserId).populate("Book");
+    const user = await UserModel.findById(mongooseUserId).populate("books");
     if (user) {
       const usersBooks = user.books;
       res.status(200).json({ books: usersBooks });

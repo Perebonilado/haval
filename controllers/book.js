@@ -170,11 +170,16 @@ const deleteCustomerBookById = ash(async (req, res) => {
 const searchBookByTitle = ash(async (req, res) => {
   try {
     const { title } = req.query;
-    const booksArr = await BookModel.find({
-      title: { $regex: title, $options: "i" },
-    });
-    if (booksArr) {
-      res.status(200).json({ books: booksArr });
+    if(title){
+      const booksArr = await BookModel.find({
+        title: { $regex: title, $options: "i" },
+      });
+      if (booksArr) {
+        res.status(200).json({ books: booksArr });
+      }
+    }
+    else {
+      res.status(400).json({message: "No query passed"})
     }
   } catch (error) {
     res.status(400).json({ message: error.message });

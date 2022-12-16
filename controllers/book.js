@@ -185,7 +185,7 @@ const searchBookByTitle = ash(async (req, res) => {
         }
         else return {...item, isPurchased: false}
       })
-      res.status(200).json({ books: mutatedBooksArr });
+      res.status(200).json({ books: mutatedBooksArr[0]._doc });
     }
   } catch (error) {
     res.status(400).json({ message: error.message });

@@ -99,7 +99,8 @@ const getMerchantsBookById = ash(async (req, res) => {
       _id: mongooseBookId,
     }).populate("user");
 
-    if (UsersBook) res.status(200).json({ message: "Success", data: UsersBook });
+    if (UsersBook)
+      res.status(200).json({ message: "Success", data: UsersBook });
     else res.status(400).json({ message: "book does not exist" });
   } catch (error) {
     res.status(400).json({ message: "error getting book" });
@@ -130,6 +131,26 @@ const deleteMerchantsBook = ash(async (req, res) => {
   }
 });
 
+const getAllCustomersBooks = ash(async (req, res) => {
+  try {
+    const UserId = req.user;
+    const mongooseUserId = mongoose.Types.ObjectId(UserId);
+    const user = await UserModel.findById(mongooseUserId).populate("books");
+    if (user) {
+      const usersBooks = user.books;
+      res.status(200).json({ books: usersBooks });
+    } else {
+      res.status(400).json({ message: "Error finding user" });
+    }
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
 
-
-module.exports = { uploadMerchantBook, getAllMerchantsBooks, getMerchantsBookById, deleteMerchantsBook };
+module.exports = {
+  uploadMerchantBook,
+  getAllMerchantsBooks,
+  getMerchantsBookById,
+  deleteMerchantsBook,
+  getAllCustomersBooks,
+};

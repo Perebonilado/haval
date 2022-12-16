@@ -153,7 +153,7 @@ const deleteCustomerBookById = ash(async(req, res)=>{
     const mongooseUserId = mongoose.Types.ObjectId(UserId);
     const { bookId } = req.params
     const mongooseBookId = mongoose.Types.ObjectId(bookId)
-    const deletedBook = await UserModel.updateOne({_id: mongooseUserId}, { $pull: { books: [mongooseBookId] }})
+    const deletedBook = await UserModel.findOneAndUpdate({_id: mongooseUserId}, { $pull: { books: mongooseBookId }})
     if(deletedBook){
       res.status(200).json({message: "Book deleted successfully"})
     }

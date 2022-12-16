@@ -107,7 +107,7 @@ const getMerchantsBookById = ash(async (req, res) => {
   }
 });
 
-const deleteMerchantsBook = ash(async (req, res) => {
+const deleteMerchantsBookById = ash(async (req, res) => {
   try {
     const UserId = req.user;
     const { bookId } = req.params;
@@ -147,10 +147,29 @@ const getAllCustomersBooks = ash(async (req, res) => {
   }
 });
 
+const deleteCustomerBookById = ash(async(req, res)=>{
+  try {
+    const UserId = req.user;
+    const mongooseUserId = mongoose.Types.ObjectId(UserId);
+    const { bookId } = req.params
+    const mongooseBookId = mongoose.Types.ObjectId(bookId)
+    const deletedBook = await UserModel.updateOne({_id: mongooseUserId}, { $pull: { books: [mongooseBookId] }})
+    if(deletedBook){
+      res.status(200).json({message: "Book deleted successfully"})
+    }
+    else {
+      res.status(400).json({message: "error deleting book"})
+    }
+  } catch (error) {
+    res.status(400).json({message: error.message})
+  }
+})
+
 module.exports = {
   uploadMerchantBook,
   getAllMerchantsBooks,
   getMerchantsBookById,
-  deleteMerchantsBook,
+  deleteMerchantsBookById,
   getAllCustomersBooks,
+  deleteCustomerBookById
 };

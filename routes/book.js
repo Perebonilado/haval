@@ -4,8 +4,9 @@ const {
   uploadMerchantBook,
   getAllMerchantsBooks,
   getMerchantsBookById,
-  deleteMerchantsBook,
-  getAllCustomersBooks
+  deleteMerchantsBookById,
+  getAllCustomersBooks,
+  deleteCustomerBookById
 } = require("../controllers/book");
 const { authGuard } = require("../middleware/authGuard");
 const { uploadBookDetails } = require("../config/multer");
@@ -38,10 +39,12 @@ router.get(
   getMerchantsBookById
 );
 
-router.delete("/delete-merchant-book/:bookId", authGuard, deleteMerchantsBook);
+router.delete("/delete-merchant-book/:bookId", authGuard, deleteMerchantsBookById);
 
 // customer
 
 router.get("/retrieve-all-customer-books", authGuard, getAllCustomersBooks)
+
+router.delete("/delete-customer-book/:bookId", authGuard, deleteCustomerBookById)
 
 module.exports = router;

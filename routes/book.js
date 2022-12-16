@@ -1,14 +1,14 @@
 const express = require("express");
 const router = express.Router();
-const { addBook, getAllUsersBooks, getUsersBookById, deleteUsersBook,  } = require("../controllers/book");
+const { uploadMerchantBook, getAllMerchantsBooks, getMerchantsBookById, deleteMerchantsBook,  } = require("../controllers/book");
 const { authGuard } = require("../middleware/authGuard");
 const { uploadBookDetails } = require("../config/multer");
-const { addBookValidations } = require("../validations/book");
+const { uploadMerchantsBookValidations } = require("../validations/book");
 
 router.post(
-  "/add",
+  "/upload-book",
   authGuard,
-  ...addBookValidations,
+  ...uploadMerchantsBookValidations,
   uploadBookDetails.fields([
     {
       name: "book",
@@ -19,13 +19,13 @@ router.post(
       maxCount: 1,
     },
   ]),
-  addBook
+  uploadMerchantBook
 );
 
-router.get("/retrieve-all", authGuard, getAllUsersBooks);
+router.get("/retrieve-all-merchant-books", authGuard, getAllMerchantsBooks);
 
-router.get("/retrieve-one/:bookId", authGuard, getUsersBookById);
+router.get("/retrieve-one-merchant-book/:bookId", authGuard, getMerchantsBookById);
 
-router.delete("/delete/:bookId", authGuard, deleteUsersBook)
+router.delete("/delete-merchant-book/:bookId", authGuard, deleteMerchantsBook)
 
 module.exports = router;

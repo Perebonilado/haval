@@ -6,7 +6,7 @@ const { UserModel } = require("../models/User");
 const mongoose = require("mongoose");
 
 // upload book for sale
-const addBook = ash(async (req, res) => {
+const uploadMerchantBook = ash(async (req, res) => {
   try {
     // validate request body, and continue if no errors
     const errors = validationResult(req.body);
@@ -72,7 +72,7 @@ const addBook = ash(async (req, res) => {
   }
 });
 
-const getAllUsersBooks = ash(async (req, res) => {
+const getAllMerchantsBooks = ash(async (req, res) => {
   try {
     const UserId = req.user;
     const mongooseUserId = mongoose.Types.ObjectId(UserId);
@@ -88,7 +88,7 @@ const getAllUsersBooks = ash(async (req, res) => {
   }
 });
 
-const getUsersBookById = ash(async (req, res) => {
+const getMerchantsBookById = ash(async (req, res) => {
   try {
     const UserId = req.user;
     const { bookId } = req.params;
@@ -106,7 +106,7 @@ const getUsersBookById = ash(async (req, res) => {
   }
 });
 
-const deleteUsersBook = ash(async (req, res) => {
+const deleteMerchantsBook = ash(async (req, res) => {
   try {
     const UserId = req.user;
     const { bookId } = req.params;
@@ -130,4 +130,6 @@ const deleteUsersBook = ash(async (req, res) => {
   }
 });
 
-module.exports = { addBook, getAllUsersBooks, getUsersBookById, deleteUsersBook };
+
+
+module.exports = { uploadMerchantBook, getAllMerchantsBooks, getMerchantsBookById, deleteMerchantsBook };

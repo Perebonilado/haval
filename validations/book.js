@@ -1,6 +1,6 @@
 const { check } = require("express-validator");
 
-const addBookValidations = [
+const uploadMerchantsBookValidations = [
   check("title")
     .not()
     .isEmpty()
@@ -35,4 +35,4 @@ const addBookValidations = [
     .withMessage({ message: "description is a required field" }),
 ];
 
-module.exports = { addBookValidations };
+module.exports = { uploadMerchantsBookValidations };

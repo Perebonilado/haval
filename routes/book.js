@@ -6,11 +6,16 @@ const {
   getMerchantsBookById,
   deleteMerchantsBookById,
   getAllCustomersBooks,
-  deleteCustomerBookById
+  deleteCustomerBookById,
+  searchBookByTitle
 } = require("../controllers/book");
 const { authGuard } = require("../middleware/authGuard");
 const { uploadBookDetails } = require("../config/multer");
 const { uploadMerchantsBookValidations } = require("../validations/book");
+
+// general
+
+router.get("/search-books", authGuard, searchBookByTitle)
 
 // merchants 
 

@@ -147,23 +147,39 @@ const getAllCustomersBooks = ash(async (req, res) => {
   }
 });
 
-const deleteCustomerBookById = ash(async(req, res)=>{
+const deleteCustomerBookById = ash(async (req, res) => {
   try {
     const UserId = req.user;
     const mongooseUserId = mongoose.Types.ObjectId(UserId);
-    const { bookId } = req.params
-    const mongooseBookId = mongoose.Types.ObjectId(bookId)
-    const deletedBook = await UserModel.findOneAndUpdate({_id: mongooseUserId}, { $pull: { books: mongooseBookId }})
-    if(deletedBook){
-      res.status(200).json({message: "Book deleted successfully"})
-    }
-    else {
-      res.status(400).json({message: "error deleting book"})
+    const { bookId } = req.params;
+    const mongooseBookId = mongoose.Types.ObjectId(bookId);
+    const deletedBook = await UserModel.findOneAndUpdate(
+      { _id: mongooseUserId },
+      { $pull: { books: mongooseBookId } }
+    );
+    if (deletedBook) {
+      res.status(200).json({ message: "Book deleted successfully" });
+    } else {
+      res.status(400).json({ message: "error deleting book" });
     }
   } catch (error) {
-    res.status(400).json({message: error.message})
+    res.status(400).json({ message: error.message });
   }
-})
+});
+
+const searchBookByTitle = ash(async (req, res) => {
+  try {
+    const { title } = req.query;
+    const booksArr = await BookModel.find({
+      title: { $regex: title, $options: "i" },
+    });
+    if (booksArr) {
+      res.status(200).json({ books: booksArr });
+    }
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
 
 module.exports = {
   uploadMerchantBook,
@@ -171,5 +187,6 @@ module.exports = {
   getMerchantsBookById,
   deleteMerchantsBookById,
   getAllCustomersBooks,
-  deleteCustomerBookById
+  deleteCustomerBookById,
+  searchBookByTitle,
 };

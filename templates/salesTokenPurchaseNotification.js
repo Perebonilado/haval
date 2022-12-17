@@ -28,7 +28,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD
                     <td>
                         <div style="background-color: #CCE4FF; padding-top: 2rem;">
                             <div>
-                                <h1 style="color: #2F2E7C; text-align: center; font-weight: 800; margin: 0;">Welcome to Haval</h1>
+                                <h1 style="color: #2F2E7C; text-align: center; font-weight: 800; margin: 0;">Haval Token</h1>
                             </div>
                             <div
                                 style="width: 300px; border-radius: 10px; margin: auto; margin-top: 3rem; min-height: 200px;">

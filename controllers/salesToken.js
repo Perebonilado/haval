@@ -8,6 +8,7 @@ const mongoose = require("mongoose");
 const { generateUID } = require("../utils/lib/generateUID");
 const { transactionTypes } = require("../utils/constants");
 const { havalChargeInNaira } = require("../utils/constants");
+const { validationResult } = require("express-validator");
 
 const generateBookSalesToken = ash(async (req, res) => {
   /* 
@@ -33,9 +34,7 @@ const generateBookSalesToken = ash(async (req, res) => {
     if (User && book) {
       if (book.user.equals(User._id)) {
         try {
-          const UserWallet = await TokenWalletModel.findById(
-            User.tokenWallet
-          );
+          const UserWallet = await TokenWalletModel.findById(User.tokenWallet);
           if (UserWallet) {
             if (UserWallet.amount > havalChargeInNaira) {
               const salesTokenValue = generateUID();
@@ -100,12 +99,48 @@ const generateBookSalesToken = ash(async (req, res) => {
   }
 });
 
-const purchaseAssetWithToken = ash(async(req, res)=>{
+const purchaseAssetWithToken = ash(async (req, res) => {
+  /* 
+  1. check if token is exists
+  2. check if token matches the asset being purchased and amount matches
+  3. add book to users library
+  4. delete token from sales token
+  */
   try {
-    const { assetId, assetType, Token } = req.body
-  } catch (error) {
-    res.status(400).json({message: error.message})
-  }
-})
+    const errors = validationResult(req);
+    const UserId = req.user;
+    const mongooseUserId = mongoose.Types.ObjectId(UserId);
+    if (errors.isEmpty()) {
+      const { asset_id, asset_type, token } = req.body;
+      const validToken = await SalesTokenModel.findOne({ token: token });
+      if (validToken) {
+        const mongooseAssetId = mongoose.Types.ObjectId(asset_id);
+        if (asset_type === "book") {
+          const book = await BookModel.findById(mongooseAssetId);
+          const user = await UserModel.findById(mongooseUserId);
+          if (!book) res.status(400).json({ message: "Book does not exist" });
+          if (!user) res.status(400).json({ message: "Error finding user" });
+          if (user && book) {
+            const updatedUser = await user.updateOne({
+              $push: { books: book._id },
+            });
+            if (updatedUser) {
+              await SalesTokenModel.findByIdAndDelete(validToken._id);
 
-module.exports = { generateBookSalesToken };
+              res.status(200).json({
+                message: `${book.title} succesfully added to library`,
+              });
+            } else
+              res.status(400).json({
+                message: "Error adding book to library, please retry",
+              });
+          }
+        }
+      } else res.status(400).json({ message: "token is no longer valid" });
+    } else res.status(400).json(errors.array()[0].msg);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+module.exports = { generateBookSalesToken, purchaseAssetWithToken };

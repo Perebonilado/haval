@@ -9,6 +9,9 @@ const { generateUID } = require("../utils/lib/generateUID");
 const { transactionTypes } = require("../utils/constants");
 const { havalChargeInNaira } = require("../utils/constants");
 const { validationResult } = require("express-validator");
+const { generateMail, transporter } = require("../config/email");
+const { tokenPurchaseNotification } = require("../templates/salesTokenPurchaseNotification")
+const { validateEmail } = require("../utils/lib/validateEmail")
 
 const generateBookSalesToken = ash(async (req, res) => {
   /* 
@@ -25,6 +28,7 @@ const generateBookSalesToken = ash(async (req, res) => {
   try {
     const UserId = req.user;
     const { bookId } = req.params;
+    const { customer_email } = req.body
     const mongooseUserId = mongoose.Types.ObjectId(UserId);
     const mongooseBookId = mongoose.Types.ObjectId(bookId);
 
@@ -73,6 +77,19 @@ const generateBookSalesToken = ash(async (req, res) => {
                             bookCover: book.coverImageUrl,
                           },
                         });
+                        if(customer_email && validateEmail(String(customer_email))){
+                          const mail = generateMail({
+                            to: customer_email,
+                            subject: `Token for ${book.title} by ${book.author}`,
+                            html: tokenPurchaseNotification({
+                              token: String(salesTokenValue),
+                              bookTitle: book.title,
+                              author: book.author
+                            }),
+                          });
+                          await transporter.sendMail(mail);
+                          res.end()
+                        }
                     } catch (error) {
                       res.status(400).json({ message: error.message });
                     }

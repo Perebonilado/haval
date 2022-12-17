@@ -34,7 +34,7 @@ const generateBookSalesToken = ash(async (req, res) => {
       if (book.user.equals(User._id)) {
         try {
           const UserWallet = await TokenWalletModel.findById(
-            User.wallet
+            User.tokenWallet
           );
           if (UserWallet) {
             if (UserWallet.amount > havalChargeInNaira) {
@@ -99,5 +99,13 @@ const generateBookSalesToken = ash(async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 });
+
+const purchaseAssetWithToken = ash(async(req, res)=>{
+  try {
+    const { assetId, assetType, Token } = req.body
+  } catch (error) {
+    res.status(400).json({message: error.message})
+  }
+})
 
 module.exports = { generateBookSalesToken };

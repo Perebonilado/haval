@@ -121,19 +121,24 @@ const purchaseAssetWithToken = ash(async (req, res) => {
           if (!book) res.status(400).json({ message: "Book does not exist" });
           if (!user) res.status(400).json({ message: "Error finding user" });
           if (user && book) {
-            const updatedUser = await user.updateOne({
-              $push: { books: book._id },
-            });
-            if (updatedUser) {
-              await SalesTokenModel.findByIdAndDelete(validToken._id);
+            if (validToken.book.equals(book._id)) {
+              const updatedUser = await user.updateOne({
+                $push: { books: book._id },
+              });
+              if (updatedUser) {
+                await SalesTokenModel.findByIdAndDelete(validToken._id);
 
-              res.status(200).json({
-                message: `${book.title} succesfully added to library`,
-              });
+                res.status(200).json({
+                  message: `${book.title} succesfully added to library`,
+                });
+              } else
+                res.status(400).json({
+                  message: "Error adding book to library, please retry",
+                });
             } else
-              res.status(400).json({
-                message: "Error adding book to library, please retry",
-              });
+              res
+                .status(400)
+                .json({ message: "This token cannot purchase this asset" });
           }
         }
       } else res.status(400).json({ message: "token is no longer valid" });

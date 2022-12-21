@@ -72,16 +72,29 @@ const uploadMerchantBook = ash(async (req, res) => {
   }
 });
 
-const getAllMerchantsBooks = ash(async (req, res) => {
+const getMerchantsBooks = ash(async (req, res) => {
   try {
     const UserId = req.user;
+    const perPage = req.query.perPage ? (req.query.perPage > 0 ? req.query.perPage : 10) : 10
+    const page = req.query.page ? (req.query.page > 0 ? req.query.page : 0) : 0
+    const totalPageCount = null
+
     const mongooseUserId = mongoose.Types.ObjectId(UserId);
     const UsersBooks = await BookModel.find()
       .where("user")
-      .equals(mongooseUserId);
+      .equals(mongooseUserId)
+      .limit(perPage)
+      .skip(perPage * page)
+      .sort({title: "asc"})
+      .exec((err, events)=>{
+        events.count().exec((err, count)=>{
+          totalPageCount = count
+        })
+      })
+      ;
 
     if (UsersBooks)
-      res.status(200).json({ message: "Success", data: UsersBooks });
+      res.status(200).json({ message: "Success", data: UsersBooks, pagr: page, totalPageCount: totalPageCount });
     else res.status(400).json({ message: "error getting books" });
   } catch (error) {
     res.status(400).json({ message: "error getting books" });
@@ -189,7 +202,7 @@ const searchBookByTitle = ash(async (req, res) => {
 
 module.exports = {
   uploadMerchantBook,
-  getAllMerchantsBooks,
+  getMerchantsBooks,
   getMerchantsBookById,
   deleteMerchantsBookById,
   getAllCustomersBooks,

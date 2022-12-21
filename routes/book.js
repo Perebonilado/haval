@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const {
   uploadMerchantBook,
-  getAllMerchantsBooks,
+  getMerchantsBooks,
   getMerchantsBookById,
   deleteMerchantsBookById,
   getAllCustomersBooks,
@@ -36,7 +36,7 @@ router.post(
   uploadMerchantBook
 );
 
-router.get("/retrieve-all-merchant-books", authGuard, getAllMerchantsBooks);
+router.get("/retrieve-all-merchant-books", authGuard, getMerchantsBooks);
 
 router.get(
   "/retrieve-one-merchant-book/:bookId",

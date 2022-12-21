@@ -98,6 +98,7 @@ const getMerchantsBooks = ash(async (req, res) => {
     else res.status(400).json({ message: "error getting books" });
   } catch (error) {
     res.status(400).json({ message: "error getting books" });
+    
   }
 });
 

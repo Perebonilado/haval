@@ -81,7 +81,6 @@ const getMerchantsBooks = ash(async (req, res) => {
         : 10
       : 10;
     const page = req.query.page ? (req.query.page > 0 ? req.query.page : 0) : 0;
-    const totalPageCount = null;
 
     const mongooseUserId = mongoose.Types.ObjectId(UserId);
     const UsersBooks = await BookModel.find()
@@ -101,8 +100,8 @@ const getMerchantsBooks = ash(async (req, res) => {
       res.status(200).json({
         message: "Success",
         data: UsersBooks,
-        pagr: page,
-        totalPageCount: UserBookCount,
+        page: page,
+        totalPageCount: UserBookCount/perPage,
       });
     else res.status(400).json({ message: "error getting books" });
   } catch (error) {

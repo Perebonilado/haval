@@ -75,9 +75,13 @@ const uploadMerchantBook = ash(async (req, res) => {
 const getMerchantsBooks = ash(async (req, res) => {
   try {
     const UserId = req.user;
-    const perPage = req.query.perPage ? (req.query.perPage > 0 ? req.query.perPage : 10) : 10
-    const page = req.query.page ? (req.query.page > 0 ? req.query.page : 0) : 0
-    const totalPageCount = null
+    const perPage = req.query.perPage
+      ? req.query.perPage > 0
+        ? req.query.perPage
+        : 10
+      : 10;
+    const page = req.query.page ? (req.query.page > 0 ? req.query.page : 0) : 0;
+    const totalPageCount = null;
 
     const mongooseUserId = mongoose.Types.ObjectId(UserId);
     const UsersBooks = await BookModel.find()
@@ -85,20 +89,24 @@ const getMerchantsBooks = ash(async (req, res) => {
       .equals(mongooseUserId)
       .limit(perPage)
       .skip(perPage * page)
-      .sort({title: "asc"})
-      .exec((err, events)=>{
-        events.count().exec((err, count)=>{
-          totalPageCount = count
-        })
-      })
+      .sort({ title: "asc" });
+
+    const UserBookCount = await BookModel.find()
+      .where("user")
+      .equals(mongooseUserId)
+      .countDocuments()
       ;
 
-    if (UsersBooks)
-      res.status(200).json({ message: "Success", data: UsersBooks, pagr: page, totalPageCount: totalPageCount });
+    if (UsersBooks && UserBookCount)
+      res.status(200).json({
+        message: "Success",
+        data: UsersBooks,
+        pagr: page,
+        totalPageCount: UserBookCount,
+      });
     else res.status(400).json({ message: "error getting books" });
   } catch (error) {
     res.status(400).json({ message: "error getting books" });
-    
   }
 });
 
@@ -184,17 +192,16 @@ const deleteCustomerBookById = ash(async (req, res) => {
 const searchBookByTitle = ash(async (req, res) => {
   try {
     const { title, count } = req.query;
-    
-    if(title){
+
+    if (title) {
       const booksArr = await BookModel.find({
         title: { $regex: title, $options: "i" },
-      }).limit(count || '5');
+      }).limit(count || "5");
       if (booksArr) {
         res.status(200).json({ books: booksArr });
       }
-    }
-    else {
-      res.status(400).json({message: "No query passed"})
+    } else {
+      res.status(400).json({ message: "No query passed" });
     }
   } catch (error) {
     res.status(400).json({ message: error.message });

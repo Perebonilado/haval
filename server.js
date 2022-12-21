@@ -2,6 +2,7 @@ const express = require("express")
 const bodyParser = require('body-parser')
 const dotenv = require("dotenv")
 const compression = require("compression");
+const cors = require("cors")
 const helmet = require("helmet");
 dotenv.config()
 const { connectDB } = require("./config/db")
@@ -17,6 +18,7 @@ const salesTokenRoutes = require("./routes/salesToken")
 const paystackRoutes = require("./routes/paystack")
 const webHookRoutes = require("./routes/webhooks")
 
+app.use(cors())
 app.use(compression())
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())

@@ -78,7 +78,7 @@ const signUp = ash(async (req, res) => {
             await transporter.sendMail(mail);
             res
               .status(200)
-              .json({ message: "Account Creation Successful", token: token, username: User.username });
+              .json({ message: "Account Creation Successful", token: token, username: User.username, profilePicture: User.profilePictureURL });
           }
         } catch (error) {
           res.status(400).json({ message: error.message });
@@ -119,7 +119,7 @@ const login = ash(async (req, res) => {
               }),
             });
             await transporter.sendMail(mail);
-            res.status(200).json({ message: "login successful", token: token, username: User.username });
+            res.status(200).json({ message: "login successful", token: token, username: User.username, profilePicture: User.profilePictureURL });
           } else res.status(400).json({ message: "Invalid password" });
         } else {
           res.status(400).json({ message: "Invalid email" });

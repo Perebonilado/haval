@@ -29,7 +29,7 @@ const uploadMerchantBook = ash(async (req, res) => {
           const bookUrl = await cloudinary.uploader.upload(book);
 
           if (bookUrl && coverImageUrl) {
-            if (new Date().getTime() < new Date(releaseDate).getTime()) {
+            
               const createdBook = new BookModel({
                 title: title,
                 author: author,
@@ -55,11 +55,6 @@ const uploadMerchantBook = ash(async (req, res) => {
                   res.status(400).json({ message: error.message });
                 }
               }
-            } else {
-              res
-                .status(400)
-                .json({ message: "Upload date must be a future date" });
-            }
           }
         } catch (error) {
           res.status(400).json({ message: error.message });

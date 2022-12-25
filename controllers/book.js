@@ -87,7 +87,7 @@ const getMerchantsBooks = ash(async (req, res) => {
       .equals(mongooseUserId)
       .countDocuments();
     if (UsersBooks && UserBookCount) {
-      if (UserBookCount < 1)
+      if (UserBookCount < 1 || Boolean(UserBookCount)===false)
         res
           .status(200)
           .json({

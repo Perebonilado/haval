@@ -234,7 +234,6 @@ const initalizeTransaction = ash(async (reqObj, resObj) => {
       }
     } else resObj.status(400).json({ message: "unable to find User" });
   } catch (error) {
-    console.log(error);
     resObj.status(400).json({ message: error.message });
   }
 });

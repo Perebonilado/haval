@@ -1,5 +1,5 @@
 const ash = require("express-async-handler");
-const { decodeJwtToken } = require("../utils/lib/generateToken");
+const { decodeJwtToken } = require("../utils/lib/generateJwtToken");
 
 const authGuard = ash(async (req, res, next) => {
   try {

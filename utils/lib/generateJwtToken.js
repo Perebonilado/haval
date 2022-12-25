@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const { PRIVATE_KEY } = require("../constants")
 
 const generateJwtToken = (userId) => {
-    const token = jwt.sign({id: userId}, PRIVATE_KEY, { expiresIn: "3h"})
+    const token = jwt.sign({id: userId}, PRIVATE_KEY, { expiresIn: "24h"})
 
     if(token) return token
     return null

@@ -7,7 +7,7 @@ const {
   encryptPassword,
   comparePassword,
 } = require("../utils/lib/passwordEncryption");
-const { generateJwtToken } = require("../utils/lib/generateToken");
+const { generateJwtToken } = require("../utils/lib/generateJwtToken");
 const { generateMail, transporter } = require("../config/email");
 const { loginNotification } = require("../templates/loginNotification");
 const { signupNotification } = require("../templates/signupNotification");

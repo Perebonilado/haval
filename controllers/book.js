@@ -119,7 +119,7 @@ const getMerchantsBookById = ash(async (req, res) => {
       res.status(200).json({ message: "Success", data: UsersBook });
     else res.status(400).json({ message: "book does not exist" });
   } catch (error) {
-    res.status(400).json({ message: "error getting book" });
+    res.status(400).json({ message: error.message });
   }
 });
 

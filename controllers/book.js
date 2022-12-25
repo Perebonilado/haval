@@ -113,7 +113,7 @@ const getMerchantsBookById = ash(async (req, res) => {
     const UsersBook = await BookModel.find({
       user: mongooseUserId,
       _id: mongooseBookId,
-    }).populate("user", "firstName", "lastName", "username");
+    }).populate("user", "firstName lastName username profilePictureURL");
 
     if (UsersBook)
       res.status(200).json({ message: "Success", data: UsersBook });

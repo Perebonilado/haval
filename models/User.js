@@ -42,6 +42,7 @@ const UserSchema = new Schema({
   },
   profilePictureURL: {
     type: String,
+    default: ""
   },
   books: {
     type: [{ type: Schema.Types.ObjectId, ref: "Book" }],

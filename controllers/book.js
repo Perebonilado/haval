@@ -29,32 +29,29 @@ const uploadMerchantBook = ash(async (req, res) => {
           const bookUrl = await cloudinary.uploader.upload(book);
 
           if (bookUrl && coverImageUrl) {
-            
-              const createdBook = new BookModel({
-                title: title,
-                author: author,
-                releaseDate: releaseDate,
-                amount: amount,
-                genre: genre,
-                description: description,
-                coverImageUrl: coverImageUrl.secure_url,
-                bookUrl: bookUrl.secure_url,
-                user: mongoose.Types.ObjectId(UserId),
-              });
-              const savedBook = await createdBook.save();
-              if (savedBook) {
-                try {
-                  await UserModel.findOneAndUpdate(
-                    { _id: mongoose.Types.ObjectId(UserId) },
-                    { $push: { books: savedBook._id } }
-                  );
-                  res
-                    .status(200)
-                    .json({ message: "Book successfully uploaded" });
-                } catch (error) {
-                  res.status(400).json({ message: error.message });
-                }
+            const createdBook = new BookModel({
+              title: title,
+              author: author,
+              releaseDate: releaseDate,
+              amount: amount,
+              genre: genre,
+              description: description,
+              coverImageUrl: coverImageUrl.secure_url,
+              bookUrl: bookUrl.secure_url,
+              user: mongoose.Types.ObjectId(UserId),
+            });
+            const savedBook = await createdBook.save();
+            if (savedBook) {
+              try {
+                await UserModel.findOneAndUpdate(
+                  { _id: mongoose.Types.ObjectId(UserId) },
+                  { $push: { books: savedBook._id } }
+                );
+                res.status(200).json({ message: "Book successfully uploaded" });
+              } catch (error) {
+                res.status(400).json({ message: error.message });
               }
+            }
           }
         } catch (error) {
           res.status(400).json({ message: error.message });
@@ -88,19 +85,28 @@ const getMerchantsBooks = ash(async (req, res) => {
     const UserBookCount = await BookModel.find()
       .where("user")
       .equals(mongooseUserId)
-      .countDocuments()
-      ;
-
-    if (UsersBooks && UserBookCount)
-      res.status(200).json({
-        message: "Success",
-        data: UsersBooks,
-        page: page,
-        totalPageCount: UserBookCount/perPage,
-      });
-    else res.status(400).json({ message: "error getting books" });
+      .countDocuments();
+    if (UsersBooks && UserBookCount) {
+      if (UserBookCount == 0)
+        res
+          .status(200)
+          .json({
+            data: [],
+            message: "User is yet to upload books",
+            page: 0,
+            totalPageCount: 0,
+          });
+      else {
+        res.status(200).json({
+          message: "Success",
+          data: UsersBooks,
+          page: page,
+          totalPageCount: UserBookCount / perPage,
+        });
+      }
+    }
   } catch (error) {
-    res.status(400).json({ message: "error getting books" });
+    res.status(400).json({ message: error.message });
   }
 });
 

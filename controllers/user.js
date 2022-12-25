@@ -6,15 +6,17 @@ const getUserInformation = ash(async (req, res) => {
   try {
     const userId = req.user;
     const mongooseUserId = mongoose.Types.ObjectId(userId);
-    const user = await UserModel.findById(mongooseUserId).select(["firstName", "lastName", "username", "profilePictureURL"]);
+    const user = await UserModel.findById(mongooseUserId)
+      .select(["firstName", "lastName", "username", "profilePictureURL"])
+      .populate("tokenWallet")
+      .populate("revenueWallet");
 
-    if(user){
-        res.status(200).json({message: "successful", data: user})
+    if (user) {
+      res.status(200).json({ message: "successful", data: user });
     }
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 });
 
-
-module.exports = { getUserInformation }
+module.exports = { getUserInformation };

@@ -8,7 +8,7 @@ const getUserInformation = ash(async (req, res) => {
     const mongooseUserId = mongoose.Types.ObjectId(userId);
     const user = await UserModel.findById(mongooseUserId)
       .populate("tokenWallet revenueWallet")
-      .select(["firstName", "lastName", "username", "profilePictureURL", "tokenWallet", "revenueWallet"]);
+      // .select(["firstName", "lastName", "username", "profilePictureURL", "tokenWallet", "revenueWallet"]);
 
     if (user) {
       res.status(200).json({ message: "successful", data: user });

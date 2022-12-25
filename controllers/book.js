@@ -87,15 +87,12 @@ const getMerchantsBooks = ash(async (req, res) => {
       .equals(mongooseUserId)
       .countDocuments();
 
-    if (UsersBooks && UserBookCount) {
-      res.status(200).json({
-        message: "Success",
-        data: UsersBooks,
-        page: page,
-        totalPageCount: UserBookCount / perPage,
-      });
-    }
-    console.log(UserBookCount)
+    res.status(200).json({
+      message: "Success",
+      data: UsersBooks,
+      page: page,
+      totalPageCount: UserBookCount / perPage,
+    });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }

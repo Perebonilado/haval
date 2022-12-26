@@ -173,7 +173,7 @@ const purchaseAssetWithToken = ash(async (req, res) => {
 
 const sendTokenViaEmail = ash(async (req, res) => {
   try {
-    const errors = validationResult(req.body);
+    const errors = validationResult(req);
     if (errors.isEmpty()) {
       const { email, token, assetName } = req.body;
       const mail = generateMail({

@@ -186,7 +186,7 @@ const sendTokenViaEmail = ash(async (req, res) => {
       });
       await transporter.sendMail(mail);
       res.status(200).json({ message: "Token successfully sent" });
-    } else res.status(400).json({ message: errors.array()[0].msg });
+    } else res.status(400).json({ message: errors.array()[0].msg.message });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }

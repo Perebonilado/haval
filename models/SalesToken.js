@@ -21,6 +21,10 @@ const SalesTokenSchema = new Schema({
     type: String,
     required: [true, "Provide token"],
   },
+  sentTo: {
+    type: String,
+    default: ""
+  },
   created_at: {
     type: Date,
     default: Date.now(),

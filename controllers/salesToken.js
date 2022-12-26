@@ -174,22 +174,35 @@ const purchaseAssetWithToken = ash(async (req, res) => {
 const sendTokenViaEmail = ash(async (req, res) => {
   try {
     const errors = validationResult(req);
+    const user = req.user;
+    const mongooseUserId = mongoose.Types.ObjectId(user);
     if (errors.isEmpty()) {
       const { email, token, assetName } = req.body;
-      const mail = generateMail({
-        to: email,
-        subject: `Token Purchase for ${assetName}`,
-        html: tokenSaleNotification({
-          assetName: assetName,
-          token: token,
-        }),
+      const storedToken = await SalesTokenModel.findOne({
+        token: token,
+        user: mongooseUserId,
       });
-      await transporter.sendMail(mail);
-      res.status(200).json({ message: "Token successfully sent" });
+      if (storedToken) {
+        await storedToken.updateOne({ $set: { sentTo: email } });
+        const mail = generateMail({
+          to: email,
+          subject: `Token Purchase for ${assetName}`,
+          html: tokenSaleNotification({
+            assetName: assetName,
+            token: token,
+          }),
+        });
+        await transporter.sendMail(mail);
+        res.status(200).json({ message: "Token successfully sent" });
+      }
     } else res.status(400).json({ message: errors.array()[0].msg.message });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 });
 
-module.exports = { generateBookSalesToken, purchaseAssetWithToken, sendTokenViaEmail };
+module.exports = {
+  generateBookSalesToken,
+  purchaseAssetWithToken,
+  sendTokenViaEmail,
+};

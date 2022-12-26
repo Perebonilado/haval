@@ -175,7 +175,7 @@ const sendTokenViaEmail = ash(async (req, res) => {
   try {
     const errors = validationResult(req.body);
     if (errors.isEmpty()) {
-      const { email, token, assetName } = req.body();
+      const { email, token, assetName } = req.body;
       const mail = generateMail({
         to: email,
         subject: `Token Purchase for ${assetName}`,

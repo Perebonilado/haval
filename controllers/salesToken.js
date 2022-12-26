@@ -10,8 +10,11 @@ const { transactionTypes } = require("../utils/constants");
 const { havalChargeInNaira } = require("../utils/constants");
 const { validationResult } = require("express-validator");
 const { generateMail, transporter } = require("../config/email");
-const { tokenPurchaseNotification } = require("../templates/salesTokenPurchaseNotification")
-const { validateEmail } = require("../utils/lib/validateEmail")
+const {
+  tokenPurchaseNotification,
+} = require("../templates/salesTokenPurchaseNotification");
+const { validateEmail } = require("../utils/lib/validateEmail");
+const { tokenSaleNotification } = require("../templates/tokenEmail");
 
 const generateBookSalesToken = ash(async (req, res) => {
   /* 
@@ -28,7 +31,7 @@ const generateBookSalesToken = ash(async (req, res) => {
   try {
     const UserId = req.user;
     const { bookId } = req.params;
-    const { customer_email } = req.body
+    const { customer_email } = req.body;
     const mongooseUserId = mongoose.Types.ObjectId(UserId);
     const mongooseBookId = mongoose.Types.ObjectId(bookId);
 
@@ -77,19 +80,22 @@ const generateBookSalesToken = ash(async (req, res) => {
                             bookCover: book.coverImageUrl,
                           },
                         });
-                        if(customer_email && validateEmail(String(customer_email))){
-                          const mail = generateMail({
-                            to: customer_email,
-                            subject: `Token for ${book.title} by ${book.author}`,
-                            html: tokenPurchaseNotification({
-                              token: String(salesTokenValue),
-                              bookTitle: book.title,
-                              author: book.author
-                            }),
-                          });
-                          await transporter.sendMail(mail);
-                          res.end()
-                        }
+                      if (
+                        customer_email &&
+                        validateEmail(String(customer_email))
+                      ) {
+                        const mail = generateMail({
+                          to: customer_email,
+                          subject: `Token for ${book.title} by ${book.author}`,
+                          html: tokenPurchaseNotification({
+                            token: String(salesTokenValue),
+                            bookTitle: book.title,
+                            author: book.author,
+                          }),
+                        });
+                        await transporter.sendMail(mail);
+                        res.end();
+                      }
                     } catch (error) {
                       res.status(400).json({ message: error.message });
                     }
@@ -165,4 +171,25 @@ const purchaseAssetWithToken = ash(async (req, res) => {
   }
 });
 
-module.exports = { generateBookSalesToken, purchaseAssetWithToken };
+const sendTokenViaEmail = ash(async (req, res) => {
+  try {
+    const errors = validationResult(req.body);
+    if (errors.isEmpty()) {
+      const { email, token, assetName } = req.body();
+      const mail = generateMail({
+        to: email,
+        subject: `Token Purchase for ${assetName}`,
+        html: tokenSaleNotification({
+          assetName: assetName,
+          token: token,
+        }),
+      });
+      await transporter.sendMail(mail);
+      res.status(200).json({ message: "Token successfully sent" });
+    } else res.status(400).json({ message: errors.array()[0].msg });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+module.exports = { generateBookSalesToken, purchaseAssetWithToken, sendTokenViaEmail };

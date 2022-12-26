@@ -15,13 +15,13 @@ router.post("/generate/:bookId", authGuard, generateBookSalesToken);
 router.post(
   "/purchase-asset",
   authGuard,
-  purchaseAssetWithTokenValidations,
+  ...purchaseAssetWithTokenValidations,
   purchaseAssetWithToken
 );
 router.post(
   "/send-token-email",
   authGuard,
-  sendTokenViaEmailValidation,
+  ...sendTokenViaEmailValidation,
   sendTokenViaEmail
 );
 

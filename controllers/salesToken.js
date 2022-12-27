@@ -177,7 +177,7 @@ const sendTokenViaEmail = ash(async (req, res) => {
     const user = req.user;
     const mongooseUserId = mongoose.Types.ObjectId(user);
     if (errors.isEmpty()) {
-      const { email, token, assetName } = req.body;
+      const { email, token, assetName, assetImage } = req.body;
       const storedToken = await SalesTokenModel.findOne({
         token: token,
         user: mongooseUserId,
@@ -186,7 +186,7 @@ const sendTokenViaEmail = ash(async (req, res) => {
         await storedToken.updateOne({ $set: { sentTo: email } });
         const mail = generateMail({
           to: email,
-          subject: `Token Purchase for ${assetName}`,
+          subject: `Token Purchase for ${assetImage}`,
           html: tokenSaleNotification({
             assetName: assetName,
             token: token,

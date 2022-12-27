@@ -30,6 +30,10 @@ const sendTokenViaEmailValidation = [
     .not()
     .isEmpty()
     .withMessage({ message: "Please provide asset name" }),
+  check("assetImage")
+    .not()
+    .isEmpty()
+    .withMessage({ message: "Please provide asset name" }),
 ];
 
 module.exports = {

@@ -1,4 +1,4 @@
-exports.tokenSaleNotification = ({token, assetName }) => {
+exports.tokenSaleNotification = ({token, assetName, assetImage }) => {
     return `   
 <!DOCTYPE html
 PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -33,8 +33,10 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD
                             <div
                                 style="width: 300px; border-radius: 10px; margin: auto; margin-top: 3rem; min-height: 200px;">
                                 <img width="100%" height="auto"
-                                    src="https://res.cloudinary.com/dt0wfaxft/image/upload/v1663939367/Teamwork_Business_Illustration_7_v9sagn.png"
-                                    alt="illustration">
+                                    src="${assetImage}"
+                                    alt="illustration"
+                                    style="object-fit: cover;"
+                                    >
                             </div>
 
                         </div>

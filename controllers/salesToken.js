@@ -186,7 +186,7 @@ const sendTokenViaEmail = ash(async (req, res) => {
         await storedToken.updateOne({ $set: { sentTo: email } });
         const mail = generateMail({
           to: email,
-          subject: `Token Purchase for ${assetImage}`,
+          subject: `Token Purchase for ${assetName}`,
           html: tokenSaleNotification({
             assetName: assetName,
             token: token,

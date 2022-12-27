@@ -8,7 +8,7 @@ const TransactionSchema = new Schema({
   },
   wallet_id: {
     type: Schema.Types.ObjectId,
-    ref: "Wallet",
+    ref: "TokenWallet",
     required: [true, "Please, provide wallet Id"]
   },
   description: {

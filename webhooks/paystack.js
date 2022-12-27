@@ -40,24 +40,26 @@ const confirmPaymentWebHook = ash(async (req, res) => {
             email: event.data.customer.email,
           });
           if (User) {
-            const wallet = TokenWalletModel.findById(User.tokenWallet);
-            if (wallet) {
-              const amountInKobo = event.data.amount;
-              const amountInNaira = convertKoboToNaira(amountInKobo);
+            const amountInKobo = event.data.amount;
+            const amountInNaira = convertKoboToNaira(amountInKobo);
 
-              const updatedWallet = await wallet.updateOne({
-                $inc: { amount: amountInNaira },
-              });
-              const transaction = new TransactionModel({
-                wallet_id: User.tokenWallet,
-                type: transactionTypes.tokenInflow,
-                description: `NGN${amountInNaira} for wallet funding`,
-              });
-              const savedTransaction = await transaction.save();
-              if (updatedWallet && savedTransaction) {
-                // send email
-                res.end();
-              }
+            const transaction = new TransactionModel({
+              wallet_id: User.tokenWallet,
+              type: transactionTypes.tokenInflow,
+              description: `NGN${amountInNaira} for wallet funding`,
+            });
+            const savedTransaction = await transaction.save();
+            if (savedTransaction) {
+              await TokenWalletModel.findOneAndUpdate(
+                { _id: User._id },
+                {
+                  $inc: { amount: amountInNaira },
+                  $push: { transactions: savedTransaction._id },
+                }
+              );
+
+              // send email
+              res.end();
             }
           }
         } catch (error) {

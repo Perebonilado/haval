@@ -209,7 +209,7 @@ const getUnusedTokens = ash(async (req, res) => {
     const mongooseUserId = mongoose.Types.ObjectId(userId);
     const errors = validationResult(req);
     if (errors.isEmpty()) {
-      const { asset_type, asset_id } = req.body;
+      const { asset_type, asset_id } = req.query;
       const mongooseAssetId = mongoose.Types.ObjectId(asset_id);
       if (allowedAssetTypes.includes(asset_type)) {
         if (asset_type === "book") {

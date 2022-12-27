@@ -173,7 +173,7 @@ const purchaseAssetWithToken = ash(async (req, res) => {
 
 const sendTokenViaEmail = ash(async (req, res) => {
   try {
-    const errors = validationResult(req);
+    const errors = validationResult(req.body);
     const user = req.user;
     const mongooseUserId = mongoose.Types.ObjectId(user);
     if (errors.isEmpty()) {

@@ -216,7 +216,7 @@ const getUnusedTokens = ash(async (req, res) => {
           const unusedTokens = await SalesTokenModel.find({
             user: mongooseUserId,
             book: mongooseAssetId,
-          });
+          }).populate("book", "coverImageUrl title");
           res.status(200).json({ message: "successful", data: unusedTokens });
         }
       } else res.status(400).json({ message: "invalid asset type" });

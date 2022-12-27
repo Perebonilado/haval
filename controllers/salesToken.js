@@ -15,6 +15,7 @@ const {
 } = require("../templates/salesTokenPurchaseNotification");
 const { validateEmail } = require("../utils/lib/validateEmail");
 const { tokenSaleNotification } = require("../templates/tokenEmail");
+const { allowedAssetTypes } = require("../utils/constants");
 
 const generateBookSalesToken = ash(async (req, res) => {
   /* 
@@ -190,7 +191,7 @@ const sendTokenViaEmail = ash(async (req, res) => {
           html: tokenSaleNotification({
             assetName: assetName,
             token: token,
-            assetImage: assetImage
+            assetImage: assetImage,
           }),
         });
         await transporter.sendMail(mail);
@@ -202,8 +203,32 @@ const sendTokenViaEmail = ash(async (req, res) => {
   }
 });
 
+const getUnusedTokens = ash(async (req, res) => {
+  try {
+    const userId = req.user;
+    const mongooseUserId = mongoose.Types.ObjectId(userId);
+    const errors = validationResult(req);
+    if (errors.isEmpty()) {
+      const { asset_type, asset_id } = req.body;
+      const mongooseAssetId = mongoose.Types.ObjectId(asset_id);
+      if (allowedAssetTypes.includes(asset_type)) {
+        if (asset_type === "book") {
+          const unusedTokens = await SalesTokenModel.find({
+            user: mongooseUserId,
+            book: mongooseAssetId,
+          });
+          res.status(200).json({ message: "successful", data: unusedTokens });
+        }
+      } else res.status(400).json({ message: "invalid asset type" });
+    } else res.status(400).json({ message: errors.array()[0].msg.message });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
 module.exports = {
   generateBookSalesToken,
   purchaseAssetWithToken,
   sendTokenViaEmail,
+  getUnusedTokens,
 };

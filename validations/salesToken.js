@@ -36,7 +36,19 @@ const sendTokenViaEmailValidation = [
     .withMessage({ message: "Please provide asset image" }),
 ];
 
+const getUnusedTokensValidations = [
+  check("asset_id")
+    .not()
+    .isEmpty()
+    .withMessage({ message: "Please provide asset id" }),
+  check("asset_type")
+    .not()
+    .isEmpty()
+    .withMessage({ message: "Please provide asset type" }),
+];
+
 module.exports = {
   purchaseAssetWithTokenValidations,
   sendTokenViaEmailValidation,
+  getUnusedTokensValidations
 };

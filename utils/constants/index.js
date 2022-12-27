@@ -8,3 +8,4 @@ exports.transactionTypes = {
 }
 exports.PAYSTACK_SECRET = process.env.PAYSTACK_SECRET
 exports.havalChargeInNaira=150
+exports.allowedAssetTypes = [ "book", "audio", "video"]

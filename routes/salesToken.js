@@ -4,10 +4,12 @@ const {
   generateBookSalesToken,
   purchaseAssetWithToken,
   sendTokenViaEmail,
+  getUnusedTokens
 } = require("../controllers/salesToken");
 const {
   purchaseAssetWithTokenValidations,
   sendTokenViaEmailValidation,
+  getUnusedTokensValidations
 } = require("../validations/salesToken");
 const { authGuard } = require("../middleware/authGuard");
 
@@ -24,5 +26,12 @@ router.post(
   ...sendTokenViaEmailValidation,
   sendTokenViaEmail
 );
+
+router.get(
+  "/get-unused-tokens",
+  authGuard,
+  ...getUnusedTokensValidations,
+  getUnusedTokens
+)
 
 module.exports = router;

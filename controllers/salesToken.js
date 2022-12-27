@@ -190,6 +190,7 @@ const sendTokenViaEmail = ash(async (req, res) => {
           html: tokenSaleNotification({
             assetName: assetName,
             token: token,
+            assetImage: assetImage
           }),
         });
         await transporter.sendMail(mail);

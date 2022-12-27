@@ -51,7 +51,7 @@ const confirmPaymentWebHook = ash(async (req, res) => {
             const savedTransaction = await transaction.save();
             if (savedTransaction) {
               await TokenWalletModel.findOneAndUpdate(
-                { _id: User._id },
+                { user: User._id },
                 {
                   $inc: { amount: amountInNaira },
                   $push: { transactions: savedTransaction._id },

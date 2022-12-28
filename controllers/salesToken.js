@@ -32,7 +32,7 @@ const generateBookSalesToken = ash(async (req, res) => {
   try {
     const UserId = req.user;
     const { bookId } = req.params;
-    const { customer_email } = req.body;
+    const count = req.query.count ? Number(req.query.count) : 1;
     const mongooseUserId = mongoose.Types.ObjectId(UserId);
     const mongooseBookId = mongoose.Types.ObjectId(bookId);
 
@@ -44,59 +44,40 @@ const generateBookSalesToken = ash(async (req, res) => {
         try {
           const UserWallet = await TokenWalletModel.findById(User.tokenWallet);
           if (UserWallet) {
-            if (UserWallet.amount > havalChargeInNaira) {
-              const salesTokenValue = generateUID();
-              const newToken = new SalesTokenModel({
-                amount: book.amount,
-                book: book._id,
-                user: User._id,
-                token: salesTokenValue,
-              });
-              const savedToken = await newToken.save();
-              if (savedToken) {
+            if (UserWallet.amount > count * havalChargeInNaira) {
+              const tokensArr = [];
+              for (let i = 0; i < count; i++) {
+                const salesTokenValue = generateUID();
+                const newToken = new SalesTokenModel({
+                  amount: book.amount,
+                  book: book._id,
+                  user: User._id,
+                  token: salesTokenValue,
+                });
+                const savedToken = await newToken.save();
+                tokensArr.push(savedToken);
+              }
+              if (tokensArr.length) {
                 try {
                   const transaction = new TransactionModel({
                     wallet_id: UserWallet._id,
                     type: transactionTypes.tokenOutflow,
-                    description: `outflow for generating token worth ${savedToken.amount} for ${book.title}`,
+                    description: `outflow for generating ${count} token(s) worth ${book.amount} each for ${book.title}.`,
                   });
                   const savedTransaction = transaction.save();
                   if (savedTransaction) {
                     try {
                       const updatedWallet = await UserWallet.updateOne({
-                        $inc: { amount: -havalChargeInNaira },
+                        $inc: { amount: -(count * havalChargeInNaira) },
                       });
                       const updatedBook = await book.updateOne({
-                        $inc: { purchaseCount: 1 },
+                        $inc: { purchaseCount: count },
                       });
                       if (updatedWallet && updatedBook)
                         res.status(200).json({
-                          message: "token successfully generated",
-                          data: {
-                            token: String(salesTokenValue),
-                            bookTitle: book.title,
-                            bookDescription: book.description,
-                            author: book.author,
-                            amount: book.amount,
-                            bookCover: book.coverImageUrl,
-                          },
+                          message: "token(s) successfully generated",
+                          data: tokensArr,
                         });
-                      if (
-                        customer_email &&
-                        validateEmail(String(customer_email))
-                      ) {
-                        const mail = generateMail({
-                          to: customer_email,
-                          subject: `Token for ${book.title} by ${book.author}`,
-                          html: tokenPurchaseNotification({
-                            token: String(salesTokenValue),
-                            bookTitle: book.title,
-                            author: book.author,
-                          }),
-                        });
-                        await transporter.sendMail(mail);
-                        res.end();
-                      }
                     } catch (error) {
                       res.status(400).json({ message: error.message });
                     }

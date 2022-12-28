@@ -55,7 +55,13 @@ const generateBookSalesToken = ash(async (req, res) => {
                   token: salesTokenValue,
                 });
                 const savedToken = await newToken.save();
-                tokensArr.push(savedToken);
+                tokensArr.push({
+                  token: savedToken.token,
+                  bookTitle: book.title,
+                  bookDescription: book.description,
+                  author: book.author,
+                  bookCover: book.coverImageUrl,
+                });
               }
               if (tokensArr.length) {
                 try {

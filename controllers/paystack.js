@@ -185,7 +185,7 @@ const initalizeTransaction = ash(async (reqObj, resObj) => {
       const errors = validationResult(reqObj);
       if (!errors.isEmpty()) resObj.status(400).json(errors.array()[0].msg);
       else {
-        const { amount, initiator, asset_id, asset_type } = reqObj.body;
+        const { amount, initiator, asset_id, asset_type, success_url } = reqObj.body;
         const amountInKobo = convertNairaToKobo(amount);
         // initiator: merchant | customer
         // asset_type: book
@@ -200,6 +200,7 @@ const initalizeTransaction = ash(async (reqObj, resObj) => {
           email: User.email,
           amount: String(amountInKobo),
           metadata: JSON.stringify(metadata),
+          callback_url: success_url || undefined
         });
 
         const options = {

@@ -7,8 +7,8 @@ const getWallets = ash(async (req, res) => {
   try {
     const userId = req.user
     const mongooseUserId = mongoose.Types.ObjectId(userId)
-    const revenueWallet = await RevenueWalletModel.findOne({user: mongooseUserId}).populate("transactions")
-    const tokenWallet = await TokenWalletModel.findOne({user: mongooseUserId}).populate("transactions")
+    const revenueWallet = await RevenueWalletModel.findOne({user: mongooseUserId}).select(["amount"])
+    const tokenWallet = await TokenWalletModel.findOne({user: mongooseUserId}).select(["amount"])
     res.status(200).json({revenueWallet, tokenWallet})
   } catch (error) {
     res.status(400).json({ message: error.message });

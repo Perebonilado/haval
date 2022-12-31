@@ -185,7 +185,8 @@ const initalizeTransaction = ash(async (reqObj, resObj) => {
       const errors = validationResult(reqObj);
       if (!errors.isEmpty()) resObj.status(400).json(errors.array()[0].msg);
       else {
-        const { amount, initiator, asset_id, asset_type, success_url } = reqObj.body;
+        const { amount, initiator, asset_id, asset_type, success_url } =
+          reqObj.body;
         const amountInKobo = convertNairaToKobo(amount);
         // initiator: merchant | customer
         // asset_type: book
@@ -200,7 +201,7 @@ const initalizeTransaction = ash(async (reqObj, resObj) => {
           email: User.email,
           amount: String(amountInKobo),
           metadata: JSON.stringify(metadata),
-          callback_url: success_url || undefined
+          callback_url: success_url || undefined,
         });
 
         const options = {
@@ -239,6 +240,59 @@ const initalizeTransaction = ash(async (reqObj, resObj) => {
   }
 });
 
+const createTransferRecipient = ash(async (reqObj, resObj) => {
+  try {
+    const errors = validationResult(reqObj);
+    if (!errors.isEmpty())
+      resObj.status(400).json({ message: errors.array()[0].msg.message });
+    else {
+      const { name, account_number, bank_code } = reqObj.body;
+
+      const params = JSON.stringify({
+        type: "nuban",
+        name: name,
+        account_number: account_number,
+        bank_code: bank_code,
+        currency: "NGN",
+      });
+
+      const options = {
+        hostname: "api.paystack.co",
+        port: 443,
+        path: "/transferrecipient",
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${PAYSTACK_SECRET}`,
+          "Content-Type": "application/json",
+        },
+      };
+
+      const req = https
+        .request(options, (res) => {
+          let data = "";
+
+          res.on("data", (chunk) => {
+            data += chunk;
+          });
+
+          res.on("end", () => {
+            resObj
+              .status(res.statusCode)
+              .json({ message: "successful", data: JSON.parse(data) });
+          });
+        })
+        .on("error", (error) => {
+          resObj.status(400).json({ message: error.message });
+        });
+
+      req.write(params);
+      req.end();
+    }
+  } catch (error) {
+    resObj.status(400).json({ message: error.message });
+  }
+});
+
 module.exports = {
   getBanksList,
   verifyBankAccountNumber,
@@ -246,4 +300,5 @@ module.exports = {
   fetchCustomer,
   createDedicatedVirtualAccount,
   initalizeTransaction,
+  createTransferRecipient
 };

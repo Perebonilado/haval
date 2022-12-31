@@ -18,4 +18,23 @@ const initializeTransactionValidations = [
     .withMessage({ message: "Initiator is a required field" }),
 ];
 
-module.exports = { createDedicatedVirtualAccountValidations, initializeTransactionValidations };
+const createTransferRecipientValidations = [
+  body("name")
+    .not()
+    .isEmpty()
+    .withMessage({ message: "Please provide recipient name" }),
+  body("account_number")
+    .not()
+    .isEmpty()
+    .withMessage({ message: "Please provide recipient account number" }),
+  body("bank_code")
+    .not()
+    .isEmpty()
+    .withMessage({ message: "Please provider bank code" }),
+];
+
+module.exports = {
+  createDedicatedVirtualAccountValidations,
+  initializeTransactionValidations,
+  createTransferRecipientValidations
+};

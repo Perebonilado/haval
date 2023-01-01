@@ -135,19 +135,21 @@ const confirmPaymentWebHook = ash(async (req, res) => {
       event.event === "transfer.reversed"
     ) {
       // reverse the money back into users revenue wallet and record transaction
-      const { email } = event.data.recipient
-      const { amount } = event.data
+      const { email } = event.data.recipient;
+      const { amount } = event.data;
 
-      const user = await UserModel.findOne({ email: email})
-      const revenueWallet = await RevenueWalletModel.findOneAndUpdate({_id: user.revenueWallet}, { $inc: { amount: amount}})
+      const user = await UserModel.findOne({ email: email });
+      await RevenueWalletModel.findOneAndUpdate(
+        { _id: user.revenueWallet },
+        { $inc: { amount: amount } }
+      );
       const transaction = new TransactionModel({
         wallet_id: user.revenueWallet,
         type: transactionTypes.reversal,
-        description: `Reversal for failed transaction worth ${amount}`
-      })
-      await transaction.save()
-      res.status(200).end()
-
+        description: `Reversal for failed transaction worth ${amount}`,
+      });
+      await transaction.save();
+      res.status(200).end();
     }
   } else {
     res.status(200).end();

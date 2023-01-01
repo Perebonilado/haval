@@ -4,6 +4,7 @@ const { PAYSTACK_SECRET } = require("../utils/constants");
 const { validationResult } = require("express-validator");
 const https = require("https");
 const { UserModel } = require("../models/User");
+const { RevenueWalletModel } = require("../models/RevenueWallet");
 const mongoose = require("mongoose");
 const { convertNairaToKobo } = require("../utils/lib/currencyConversion");
 const { v4: uuidv4 } = require("uuid");
@@ -297,50 +298,66 @@ const createTransferRecipient = ash(async (reqObj, resObj) => {
 const initiateTransfer = ash(async (reqObj, resObj) => {
   try {
     const errors = validationResult(req);
+    const UserId = reqObj.user;
+    const mongooseUserId = mongoose.Types.ObjectId(UserId);
 
     if (!errors.isEmpty())
       resObj.status(400).json({ message: errors.array()[0].msg.message });
     else {
       const { amount, recipient, reason } = reqObj.body;
       const uniqueRef = uuidv4();
-
-      const params = JSON.stringify({
-        source: "balance",
-        amount: amount,
-        reference: uniqueRef,
-        recipient: recipient,
-        reason: reason,
+      const revenueWallet = await RevenueWalletModel.findOne({
+        user: mongooseUserId,
       });
+      if (revenueWallet.amount >= amount) {
+        
+        const metaData = {
+          initiator: "merchant",
+          wallet_id: revenueWallet._id
+        }
 
-      const options = {
-        hostname: "api.paystack.co",
-        port: 443,
-        path: "/transfer",
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${PAYSTACK_SECRET}`,
-          "Content-Type": "application/json",
-        },
-      };
-
-      const req = https
-        .request(options, (res) => {
-          let data = "";
-
-          res.on("data", (chunk) => {
-            data += chunk;
-          });
-
-          res.on("end", () => {
-            resObj.status(200).json({ data: JSON.parse(data) });
-          });
-        })
-        .on("error", (error) => {
-          resObj.status(400).json({message: error.message})
+        const params = JSON.stringify({
+          source: "balance",
+          amount: amount,
+          reference: uniqueRef,
+          recipient: recipient,
+          reason: reason,
         });
 
-      req.write(params);
-      req.end();
+        const options = {
+          hostname: "api.paystack.co",
+          port: 443,
+          path: "/transfer",
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${PAYSTACK_SECRET}`,
+            "Content-Type": "application/json",
+          },
+          metadata: JSON.stringify(metaData)
+        };
+
+        const req = https
+          .request(options, (res) => {
+            let data = "";
+
+            res.on("data", (chunk) => {
+              data += chunk;
+            });
+
+            res.on("end", () => {
+              resObj.status(200).json({ data: JSON.parse(data) });
+            });
+          })
+          .on("error", (error) => {
+            resObj.status(400).json({ message: error.message });
+          });
+
+        req.write(params);
+        req.end();
+      } else
+        resObj
+          .status(400)
+          .json({ message: "Insuffienct funds in revenue wallet" });
     }
   } catch (error) {
     resObj.status(400).json({ message: error.message });
@@ -355,4 +372,5 @@ module.exports = {
   createDedicatedVirtualAccount,
   initalizeTransaction,
   createTransferRecipient,
+  initiateTransfer,
 };

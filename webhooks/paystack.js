@@ -128,6 +128,11 @@ const confirmPaymentWebHook = ash(async (req, res) => {
         }
       }
     }
+    else if(event.event === "transfer.success"){
+
+      // logic to deduct money from merchants revenue wallet
+
+    }
   } else {
     res.send(200);
     // send notification mail on failed transaction...

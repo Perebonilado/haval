@@ -5,6 +5,7 @@ const { validationResult } = require("express-validator");
 const https = require("https");
 const { UserModel } = require("../models/User");
 const { RevenueWalletModel } = require("../models/RevenueWallet");
+const { TransactionModel } = require("../models/Transaction");
 const mongoose = require("mongoose");
 const { convertNairaToKobo } = require("../utils/lib/currencyConversion");
 const { v4: uuidv4 } = require("uuid");
@@ -310,8 +311,6 @@ const initiateTransfer = ash(async (reqObj, resObj) => {
         user: mongooseUserId,
       });
       if (revenueWallet.amount >= amount) {
-        await revenueWallet.updateOne({ $inc: { amount: -Number(amount) } });
-
         const metaData = {
           initiator: "merchant",
           wallet_id: revenueWallet._id,
@@ -367,11 +366,13 @@ const initiateTransfer = ash(async (reqObj, resObj) => {
 
 const finalizeTransfer = ash(async (reqObj, resObj) => {
   try {
+    const UserId = reqObj.user;
+    const mongooseUserId = mongoose.Types.ObjectId(UserId);
     const errors = validationResult(reqObj);
     if (!errors.isEmpty())
       resObj.status(400).json({ message: errors.array()[0].msg.message });
     else {
-      const { transfer_code, otp } = reqObj.body;
+      const { transfer_code, otp, amount } = reqObj.body;
 
       const params = JSON.stringify({
         transfer_code: transfer_code,
@@ -398,7 +399,13 @@ const finalizeTransfer = ash(async (reqObj, resObj) => {
           });
 
           res.on("end", () => {
-            resObj.status(200).json({ data: JSON.parse(data) });
+            RevenueWalletModel.findOneAndUpdate(
+              { user: mongoose },
+              { $inc: { amount: -amount } },
+              (err, doc) => {
+                resObj.status(200).json({ data: JSON.parse(data) });
+              }
+            );
           });
         })
         .on("error", (error) => {

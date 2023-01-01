@@ -373,6 +373,9 @@ const finalizeTransfer = ash(async (reqObj, resObj) => {
       resObj.status(400).json({ message: errors.array()[0].msg.message });
     else {
       const { transfer_code, otp, amount } = reqObj.body;
+      await RevenueWalletModel.findOneAndUpdate(
+        { user: mongoose },
+        { $inc: { amount: -amount } });
 
       const params = JSON.stringify({
         transfer_code: transfer_code,
@@ -399,13 +402,7 @@ const finalizeTransfer = ash(async (reqObj, resObj) => {
           });
 
           res.on("end", () => {
-            RevenueWalletModel.findOneAndUpdate(
-              { user: mongoose },
-              { $inc: { amount: -amount } },
-              (err, doc) => {
-                resObj.status(200).json({ data: JSON.parse(data) });
-              }
-            );
+            resObj.status(200).json({ data: JSON.parse(data) });
           });
         })
         .on("error", (error) => {

@@ -134,6 +134,7 @@ const confirmPaymentWebHook = ash(async (req, res) => {
       res.status(200)
       try {
         console.log("outside if")
+        console.log(event)
         if(event.data.recipient.metadata.initiator === "merchant"){
           console.log("inside if")
           const { wallet_id } = event.data.recipient.metadata

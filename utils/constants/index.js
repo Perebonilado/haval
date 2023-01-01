@@ -4,7 +4,8 @@ exports.transactionTypes = {
     tokenInflow: "token_inflow",
     tokenOutflow: "token_outflow",
     salesInflow: "sales_inflow",
-    withdrawalOutflow: "withdrawal_outflow"
+    withdrawalOutflow: "withdrawal_outflow",
+    reversal: "reversal"
 }
 exports.PAYSTACK_SECRET = process.env.PAYSTACK_SECRET
 exports.havalChargeInNaira=150

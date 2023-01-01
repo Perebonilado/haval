@@ -33,8 +33,24 @@ const createTransferRecipientValidations = [
     .withMessage({ message: "Please provider bank code" }),
 ];
 
+const initiateTransferValidations = [
+  body("recipient")
+    .not()
+    .isEmpty()
+    .withMessage({ message: "Please provide a valid recipient" }),
+  body("amount")
+    .not()
+    .isEmpty()
+    .withMessage({ message: "Please Provide amount" }),
+  body("reason")
+    .not()
+    .isEmpty()
+    .withMessage({ message: "Please provide reason for initiating transfer" }),
+];
+
 module.exports = {
   createDedicatedVirtualAccountValidations,
   initializeTransactionValidations,
-  createTransferRecipientValidations
+  createTransferRecipientValidations,
+  initiateTransferValidations
 };

@@ -49,7 +49,7 @@ router.post(
 );
 
 router.post(
-  "initiate-transfer",
+  "/initiate-transfer",
   authGuard,
   initiateTransfer
 )

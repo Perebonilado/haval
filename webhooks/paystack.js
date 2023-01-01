@@ -131,25 +131,7 @@ const confirmPaymentWebHook = ash(async (req, res) => {
     else if(event.event === "transfer.success"){
 
       // logic to deduct money from merchants revenue wallet
-      res.status(200)
-      try {
-        console.log("outside if")
-        console.log(event)
-        if(event.data.recipient.metadata.initiator === "merchant"){
-          console.log("inside if")
-          const { wallet_id } = event.data.recipient.metadata
-          const mongooseRevenueWalletId = mongoose.Types.ObjectId(wallet_id)
-          const revenueWallet = await RevenueWalletModel.findById(mongooseRevenueWalletId)
-          await revenueWallet.updateOne({$inc: { amount: -Number(event.data.amount)}})
-          res.end()
-        }
-        else {
-          console.log("inside else")
-          res.end()
-        }
-      } catch (error) {
-        res.end()
-      }
+      res.status(200).end()
 
     }
   } else {

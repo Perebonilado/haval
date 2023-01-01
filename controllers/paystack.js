@@ -310,6 +310,8 @@ const initiateTransfer = ash(async (reqObj, resObj) => {
         user: mongooseUserId,
       });
       if (revenueWallet.amount >= amount) {
+        await revenueWallet.updateOne({ $inc: { amount: -Number(amount) } });
+
         const metaData = {
           initiator: "merchant",
           wallet_id: revenueWallet._id,
@@ -396,11 +398,11 @@ const finalizeTransfer = ash(async (reqObj, resObj) => {
           });
 
           res.on("end", () => {
-            resObj.status(200).json({data: JSON.parse(data)})
+            resObj.status(200).json({ data: JSON.parse(data) });
           });
         })
         .on("error", (error) => {
-          resObj.status(400).json({data: error.message});
+          resObj.status(400).json({ data: error.message });
         });
 
       req.write(params);

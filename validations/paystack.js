@@ -57,6 +57,10 @@ const finalizeTransferValidations = [
     .not()
     .isEmpty()
     .withMessage({ message: "Please provide a valid otp" }),
+  body("amount")
+    .not()
+    .isEmpty()
+    .withMessage({ message: "Please provide a amount" }),
 ];
 
 module.exports = {

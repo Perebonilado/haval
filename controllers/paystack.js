@@ -1,6 +1,6 @@
 const ash = require("express-async-handler");
 const axios = require("axios");
-const { PAYSTACK_SECRET } = require("../utils/constants");
+const { PAYSTACK_SECRET, transactionTypes } = require("../utils/constants");
 const { validationResult } = require("express-validator");
 const https = require("https");
 const { UserModel } = require("../models/User");
@@ -373,9 +373,14 @@ const finalizeTransfer = ash(async (reqObj, resObj) => {
       resObj.status(400).json({ message: errors.array()[0].msg.message });
     else {
       const { transfer_code, otp, amount } = reqObj.body;
-      await RevenueWalletModel.findOneAndUpdate(
-        { user: mongooseUserId },
-        { $inc: { amount: -amount } });
+      const revenueWallet = await RevenueWalletModel.findOne({user: mongooseUserId})
+      await revenueWallet.updateOne({$inc: {amount: -Number(amount)}})
+      const transaction = new TransactionModel({
+        wallet_id: revenueWallet._id,
+        type: transactionTypes.withdrawalOutflow,
+        description: `Withdrawal from revenue wallet: -${amount}`
+      })
+      await transaction.save()
 
       const params = JSON.stringify({
         transfer_code: transfer_code,

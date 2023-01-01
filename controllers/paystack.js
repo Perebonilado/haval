@@ -310,11 +310,10 @@ const initiateTransfer = ash(async (reqObj, resObj) => {
         user: mongooseUserId,
       });
       if (revenueWallet.amount >= amount) {
-        
         const metaData = {
           initiator: "merchant",
-          wallet_id: revenueWallet._id
-        }
+          wallet_id: revenueWallet._id,
+        };
 
         const params = JSON.stringify({
           source: "balance",
@@ -333,7 +332,7 @@ const initiateTransfer = ash(async (reqObj, resObj) => {
             Authorization: `Bearer ${PAYSTACK_SECRET}`,
             "Content-Type": "application/json",
           },
-          metadata: JSON.stringify(metaData)
+          metadata: JSON.stringify(metaData),
         };
 
         const req = https
@@ -364,6 +363,54 @@ const initiateTransfer = ash(async (reqObj, resObj) => {
   }
 });
 
+const finalizeTransfer = ash(async (reqObj, resObj) => {
+  try {
+    const errors = validationResult(reqObj);
+    if (!errors.isEmpty())
+      resObj.status(400).json({ message: errors.array()[0].msg.message });
+    else {
+      const { transfer_code, otp } = reqObj.body;
+
+      const params = JSON.stringify({
+        transfer_code: transfer_code,
+        otp: otp,
+      });
+
+      const options = {
+        hostname: "api.paystack.co",
+        port: 443,
+        path: "/transfer/finalize_transfer",
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${PAYSTACK_SECRET}`,
+          "Content-Type": "application/json",
+        },
+      };
+
+      const req = https
+        .request(options, (res) => {
+          let data = "";
+
+          res.on("data", (chunk) => {
+            data += chunk;
+          });
+
+          res.on("end", () => {
+            resObj.status(200).json({data: JSON.parse(data)})
+          });
+        })
+        .on("error", (error) => {
+          resObj.status(400).json({data: error.message});
+        });
+
+      req.write(params);
+      req.end();
+    }
+  } catch (error) {
+    resObj.status(400).json({ message: error.message });
+  }
+});
+
 module.exports = {
   getBanksList,
   verifyBankAccountNumber,
@@ -373,4 +420,5 @@ module.exports = {
   initalizeTransaction,
   createTransferRecipient,
   initiateTransfer,
+  finalizeTransfer,
 };

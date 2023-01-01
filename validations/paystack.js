@@ -48,9 +48,21 @@ const initiateTransferValidations = [
     .withMessage({ message: "Please provide reason for initiating transfer" }),
 ];
 
+const finalizeTransferValidations = [
+  body("transfer_code")
+    .not()
+    .isEmpty()
+    .withMessage({ message: "Please provide transfer code" }),
+  body("otp")
+    .not()
+    .isEmpty()
+    .withMessage({ message: "Please provide a valid otp" }),
+];
+
 module.exports = {
   createDedicatedVirtualAccountValidations,
   initializeTransactionValidations,
   createTransferRecipientValidations,
-  initiateTransferValidations
+  initiateTransferValidations,
+  finalizeTransferValidations
 };

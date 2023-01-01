@@ -9,14 +9,16 @@ const {
   createDedicatedVirtualAccount,
   initalizeTransaction,
   createTransferRecipient,
-  initiateTransfer
+  initiateTransfer,
+  finalizeTransfer,
 } = require("../controllers/paystack");
 
 const {
   createDedicatedVirtualAccountValidations,
   initializeTransactionValidations,
   createTransferRecipientValidations,
-  initiateTransferValidations
+  initiateTransferValidations,
+  finalizeTransferValidations,
 } = require("../validations/paystack");
 
 router.get("/get-banks-list", authGuard, getBanksList);
@@ -51,7 +53,15 @@ router.post(
 router.post(
   "/initiate-transfer",
   authGuard,
+  ...initiateTransferValidations,
   initiateTransfer
-)
+);
+
+router.post(
+  "/finalize-transfer",
+  authGuard,
+  ...finalizeTransferValidations,
+  finalizeTransfer
+);
 
 module.exports = router;

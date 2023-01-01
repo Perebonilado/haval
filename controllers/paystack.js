@@ -297,7 +297,7 @@ const createTransferRecipient = ash(async (reqObj, resObj) => {
 
 const initiateTransfer = ash(async (reqObj, resObj) => {
   try {
-    const errors = validationResult(req);
+    const errors = validationResult(reqObj);
     const UserId = reqObj.user;
     const mongooseUserId = mongoose.Types.ObjectId(UserId);
 

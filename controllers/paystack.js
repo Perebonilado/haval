@@ -372,16 +372,6 @@ const finalizeTransfer = ash(async (reqObj, resObj) => {
     if (!errors.isEmpty())
       resObj.status(400).json({ message: errors.array()[0].msg.message });
     else {
-      const { transfer_code, otp, amount } = reqObj.body;
-      const revenueWallet = await RevenueWalletModel.findOne({user: mongooseUserId})
-      await revenueWallet.updateOne({$inc: {amount: -Number(amount)}})
-      const transaction = new TransactionModel({
-        wallet_id: revenueWallet._id,
-        type: transactionTypes.withdrawalOutflow,
-        description: `Withdrawal from revenue wallet: -${amount}`
-      })
-      await transaction.save()
-
       const params = JSON.stringify({
         transfer_code: transfer_code,
         otp: otp,
@@ -406,7 +396,20 @@ const finalizeTransfer = ash(async (reqObj, resObj) => {
             data += chunk;
           });
 
-          res.on("end", () => {
+          res.on("end", async () => {
+            const { transfer_code, otp, amount } = reqObj.body;
+            const revenueWallet = await RevenueWalletModel.findOne({
+              user: mongooseUserId,
+            });
+            await revenueWallet.updateOne({
+              $inc: { amount: -Number(amount) },
+            });
+            const transaction = new TransactionModel({
+              wallet_id: revenueWallet._id,
+              type: transactionTypes.withdrawalOutflow,
+              description: `Withdrawal from revenue wallet: -${amount}`,
+            });
+            await transaction.save();
             resObj.status(200).json({ data: JSON.parse(data) });
           });
         })

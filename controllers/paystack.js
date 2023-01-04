@@ -372,6 +372,7 @@ const finalizeTransfer = ash(async (reqObj, resObj) => {
     if (!errors.isEmpty())
       resObj.status(400).json({ message: errors.array()[0].msg.message });
     else {
+      const { transfer_code, otp, amount } = reqObj.body;
       const params = JSON.stringify({
         transfer_code: transfer_code,
         otp: otp,
@@ -397,7 +398,7 @@ const finalizeTransfer = ash(async (reqObj, resObj) => {
           });
 
           res.on("end", async () => {
-            const { transfer_code, otp, amount } = reqObj.body;
+            
             const revenueWallet = await RevenueWalletModel.findOne({
               user: mongooseUserId,
             });
